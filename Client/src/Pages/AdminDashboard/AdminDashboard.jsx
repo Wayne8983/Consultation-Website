@@ -1,22 +1,7 @@
+import { stats } from "./Data/Data";
+
 const AdminDashboard = () => {
-  const stats = [
-    {
-      title: "Total Clients",
-      value: "24",
-    },
-    {
-      title: "Active Projects",
-      value: "12",
-    },
-    {
-      title: "Consultations",
-      value: "8",
-    },
-    {
-      title: "Revenue",
-      value: "$12.4K",
-    },
-  ];
+
 
   return (
     <div className="space-y-8">

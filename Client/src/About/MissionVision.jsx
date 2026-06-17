@@ -1,3 +1,6 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
 const cards = [
   {
     title: "Vision",
@@ -14,20 +17,38 @@ const cards = [
 ];
 
 const MissionVision = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 1000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
 
         <div className="text-center mb-16">
-          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm">
+          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Purpose & Direction
           </span>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             What Drives Us
           </h2>
 
-          <p className="mt-6 text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-6 text-slate-400 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Everything we do is guided by a commitment to
             helping organizations grow, innovate and achieve
             lasting impact.
@@ -38,6 +59,8 @@ const MissionVision = () => {
 
           {cards.map((card, index) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={index}
               className="
                 p-8
@@ -53,6 +76,8 @@ const MissionVision = () => {
               "
             >
               <div
+                data-aos="fade-up"
+                data-aos-delay="100"
                 className="
                   w-14
                   h-14
@@ -71,11 +96,17 @@ const MissionVision = () => {
                 {index + 1}
               </div>
 
-              <h3 className="mt-6 text-2xl font-semibold text-white">
+              <h3 className="mt-6 text-2xl font-semibold text-white"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {card.title}
               </h3>
 
-              <p className="mt-4 text-slate-400 leading-relaxed">
+              <p className="mt-4 text-slate-400 leading-relaxed"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {card.text}
               </p>
             </div>

@@ -1,4 +1,16 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
 const WhoWeAre = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 1000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -6,7 +18,10 @@ const WhoWeAre = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
 
           {/* Image Side */}
-          <div>
+          <div
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             <div className="relative h-[500px] rounded-3xl overflow-hidden border border-white/10 bg-white/5">
 
             <img
@@ -27,6 +42,8 @@ const WhoWeAre = () => {
           <div>
 
             <span
+              data-aos="fade-up"
+              data-aos-delay="100"
               className="
                 text-fuchsia-400
                 uppercase
@@ -38,6 +55,8 @@ const WhoWeAre = () => {
             </span>
 
             <h2
+              data-aos="fade-up"
+              data-aos-delay="100"
               className="
                 mt-4
                 text-4xl
@@ -50,14 +69,20 @@ const WhoWeAre = () => {
               For Sustainable Growth
             </h2>
 
-            <p className="mt-8 text-slate-400 leading-relaxed">
+            <p className="mt-8 text-slate-400 leading-relaxed"
+            data-aos="fade-up"
+            data-aos-delay="100"
+            >
               The Center for Strategy & Management was established
               to help organizations across Africa build internal
               capability through leadership development,
               strategic management, and innovation.
             </p>
 
-            <p className="mt-6 text-slate-400 leading-relaxed">
+            <p className="mt-6 text-slate-400 leading-relaxed"
+            data-aos="fade-up"
+            data-aos-delay="100"
+            >
               We partner with organizations to strengthen
               strategy execution, improve performance,
               and create long-term competitive advantage.
@@ -67,21 +92,33 @@ const WhoWeAre = () => {
             <div className="mt-10 grid sm:grid-cols-2 gap-4">
 
               <div className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                <h3 className="text-white font-semibold">
+                <h3 className="text-white font-semibold"
+                data-aos="fade-up"
+                data-aos-delay="100"
+                >
                   Strategy
                 </h3>
 
-                <p className="mt-2 text-slate-400 text-sm">
+                <p className="mt-2 text-slate-400 text-sm"
+                data-aos="fade-up"
+                data-aos-delay="100"
+                >
                   Aligning vision with measurable execution.
                 </p>
               </div>
 
               <div className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                <h3 className="text-white font-semibold">
+                <h3 className="text-white font-semibold"
+                data-aos="fade-up"
+                data-aos-delay="100"
+                >
                   Leadership
                 </h3>
 
-                <p className="mt-2 text-slate-400 text-sm">
+                <p className="mt-2 text-slate-400 text-sm"
+                data-aos="fade-up"
+                data-aos-delay="100"
+                >
                   Developing leaders that drive change.
                 </p>
               </div>

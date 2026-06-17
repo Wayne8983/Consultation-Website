@@ -15,51 +15,51 @@ import {
   FiX,
 } from "react-icons/fi";
 
-const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
-  const [collapsed, setCollapsed] = useState(false);
+    const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
+    const [collapsed, setCollapsed] = useState(false);
 
-  const links = [
-    {
-      name: "Dashboard",
-      path: "/admin/dashboard",
-      icon: <FiHome size={20} />,
-    },
-    {
-      name: "Consultations",
-      path: "/admin/consultations",
-      icon: <FiClipboard size={20} />,
-    },
-    {
-      name: "Clients",
-      path: "/admin/clients",
-      icon: <FiUsers size={20} />,
-    },
-    {
-      name: "Projects",
-      path: "/admin/projects",
-      icon: <FiFolder size={20} />,
-    },
-    {
-      name: "Payments",
-      path: "/admin/payments",
-      icon: <FiCreditCard size={20} />,
-    },
-    {
-      name: "Documents",
-      path: "/admin/documents",
-      icon: <FiFileText size={20} />,
-    },
-    {
-      name: "Meetings",
-      path: "/admin/meetings",
-      icon: <FiCalendar size={20} />,
-    },
-    {
-      name: "Settings",
-      path: "/admin/settings",
-      icon: <FiSettings size={20} />,
-    },
-  ];
+    const links = [
+        {
+        name: "Dashboard",
+        path: "/admin/dashboard",
+        icon: <FiHome size={20} />,
+        },
+        {
+        name: "Consultations",
+        path: "/admin/consultations",
+        icon: <FiClipboard size={20} />,
+        },
+        {
+        name: "Clients",
+        path: "/admin/clients",
+        icon: <FiUsers size={20} />,
+        },
+        {
+        name: "Projects",
+        path: "/admin/projects",
+        icon: <FiFolder size={20} />,
+        },
+        {
+        name: "Payments",
+        path: "/admin/payments",
+        icon: <FiCreditCard size={20} />,
+        },
+        {
+        name: "Documents",
+        path: "/admin/documents",
+        icon: <FiFileText size={20} />,
+        },
+        {
+        name: "Meetings",
+        path: "/admin/meetings",
+        icon: <FiCalendar size={20} />,
+        },
+        {
+        name: "Settings",
+        path: "/admin/settings",
+        icon: <FiSettings size={20} />,
+        },
+    ];
 
   return (
     <>

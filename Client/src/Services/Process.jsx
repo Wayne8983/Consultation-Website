@@ -1,3 +1,7 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
+
 const steps = [
   {
     number: "01",
@@ -26,21 +30,39 @@ const steps = [
 ];
 
 const Process = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 2000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
         <div className="text-center">
-          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm">
+          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Our Process
           </span>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             How We Deliver Results
           </h2>
 
-          <p className="mt-6 text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-6 text-slate-400 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             A structured approach that transforms ideas into
             measurable business outcomes.
           </p>
@@ -51,6 +73,8 @@ const Process = () => {
 
           {steps.map((step) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={step.number}
               className="
                 relative
@@ -64,15 +88,24 @@ const Process = () => {
                 transition-all duration-300
               "
             >
-              <div className="text-5xl font-bold text-fuchsia-400/30">
+              <div className="text-5xl font-bold text-fuchsia-400/30"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+              >
                 {step.number}
               </div>
 
-              <h3 className="mt-6 text-2xl font-semibold text-white">
+              <h3 className="mt-6 text-2xl font-semibold text-white"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
                 {step.title}
               </h3>
 
-              <p className="mt-4 text-slate-400 leading-relaxed">
+              <p className="mt-4 text-slate-400 leading-relaxed"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+              >
                 {step.description}
               </p>
             </div>

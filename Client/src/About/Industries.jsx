@@ -1,3 +1,7 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
+
 const industries = [
   "Banking",
   "Insurance",
@@ -14,21 +18,39 @@ const industries = [
 ];
 
 const Industries = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 1000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
         <div className="text-center">
-          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm">
+          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Industries We Serve
           </span>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Trusted Across Multiple Sectors
           </h2>
 
-          <p className="mt-6 text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-6 text-slate-400 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Our expertise spans both public and private sector
             organizations, helping leaders navigate growth,
             transformation and performance improvement.
@@ -40,6 +62,8 @@ const Industries = () => {
 
           {industries.map((industry, index) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={index}
               className="
                 rounded-2xl
@@ -56,7 +80,10 @@ const Industries = () => {
             >
             <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-fuchsia-400"></div>
-                    <h3 className="text-white font-medium">
+                    <h3 className="text-white font-medium"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+                    >
                         {industry}
                     </h3>
                 </div>

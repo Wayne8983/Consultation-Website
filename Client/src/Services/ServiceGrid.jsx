@@ -1,3 +1,7 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
+
 const services = [
   {
     title: "Strategic Planning",
@@ -32,6 +36,15 @@ const services = [
 ];
 
 const ServiceGrid = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 2000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -40,6 +53,8 @@ const ServiceGrid = () => {
 
           {services.map((service, index) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={index}
               className="
                 rounded-3xl
@@ -51,15 +66,24 @@ const ServiceGrid = () => {
                 transition-all duration-300
               "
             >
-              <div className="text-fuchsia-400 font-bold text-lg">
+              <div className="text-fuchsia-400 font-bold text-lg"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 0{index + 1}
               </div>
 
-              <h3 className="mt-4 text-2xl font-semibold text-white">
+              <h3 className="mt-4 text-2xl font-semibold text-white"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {service.title}
               </h3>
 
-              <p className="mt-4 text-slate-400">
+              <p className="mt-4 text-slate-400"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {service.description}
               </p>
             </div>

@@ -1,13 +1,27 @@
 import insights from "./InsightsData/InsightsData";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
 
 const FeaturedInsight = () => {
   const featured = insights[0];
+           useEffect(() => {
+              AOS.init({
+                duration: 2000,
+                once: false,
+                offset: 120,
+              });
+        
+              AOS.refresh();
+            }, []);
 
   return (
     <section className="bg-[#0b0b10] py-16">
       <div className="max-w-7xl mx-auto px-6">
 
         <div
+          data-aos="fade-up"
+          data-aos-delay="100"
           className="
             rounded-3xl
             border border-white/10
@@ -16,22 +30,35 @@ const FeaturedInsight = () => {
             grid lg:grid-cols-2
           "
         >
-          <div className="min-h-[350px] bg-gradient-to-br from-fuchsia-600/20 to-purple-600/20" />
+          <div className="min-h-[350px] bg-gradient-to-br from-fuchsia-600/20 to-purple-600/20" data-aos="fade-up"
+          data-aos-delay="100" />
 
           <div className="p-10 flex flex-col justify-center">
-            <span className="text-fuchsia-400">
+            <span className="text-fuchsia-400"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+            >
               Featured Insight
             </span>
 
-            <h2 className="mt-4 text-4xl font-bold text-white">
+            <h2 className="mt-4 text-4xl font-bold text-white"
+                data-aos="fade-up"
+                data-aos-delay="100"
+            >
               {featured.title}
             </h2>
 
-            <p className="mt-6 text-slate-400">
+            <p className="mt-6 text-slate-400"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
               {featured.description}
             </p>
 
-            <button className="mt-8 text-fuchsia-400 hover:text-fuchsia-300">
+            <button className="mt-8 text-fuchsia-400 hover:text-fuchsia-300"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+            >
               Read Article →
             </button>
           </div>

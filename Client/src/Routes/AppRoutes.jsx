@@ -20,6 +20,12 @@ import NotFound from "../Pages/Notfound404/NotFound";
 import AdminDashboard from "../Pages/AdminDashboard/AdminDashboard";
 import AdminDocuments from "../Pages/AdminDashboard/AdminDocuments";
 import AdminLayout from "../Pages/AdminDashboard/AdminLayout";
+import AdminSettings from "../Pages/AdminDashboard/AdminSettings";
+import AdminProjects from "../Pages/AdminDashboard/AdminProjects";
+import AdminPayments from "../Pages/AdminDashboard/AdminPayments";
+import AdminMeetings from "../Pages/AdminDashboard/AdminMeetings";
+import AdminConsultations from "../Pages/AdminDashboard/AdminConsultations";
+import AdminClients from "../Pages/AdminDashboard/AdminClients";
 
 const AppRoutes = () => {
   return (
@@ -115,50 +121,48 @@ const AppRoutes = () => {
         />
         </Route>
 
-
+        {/*---------------------The admin------------------------------}*/}
         <Route element={<AdminLayout />}>
 
-  <Route
-    path="/admin/dashboard"
-    element={<AdminDashboard />}
-  />
-{/* 
-  <Route
-    path="/admin/consultations"
-    element={<Consultations />}
-  />
+        <Route
+            path="/admin/dashboard"
+            element={<AdminDashboard />}
+        />
 
-  <Route
-    path="/admin/clients"
-    element={<Clients />}
-  />
+        <Route
+            path="/admin/payments"
+            element={<AdminPayments />}
+        />
 
-  <Route
-    path="/admin/projects"
-    element={<AdminProjects />}
-  />
+        <Route
+            path="/admin/projects"
+            element={<AdminProjects />}
+        />
 
-  <Route
-    path="/admin/payments"
-    element={<AdminPayments />}
-  />
+        <Route
+            path="/admin/documents"
+            element={<AdminDocuments />}
+        />
 
-  <Route
-    path="/admin/documents"
-    element={<AdminDocuments />}
-  />
+        <Route
+            path="/admin/meetings"
+            element={<AdminMeetings />}
+        />
 
-  <Route
-    path="/admin/meetings"
-    element={<AdminMeetings />}
-  />
+        <Route
+            path="/admin/consultations"
+            element={<AdminConsultations />}
+        />
+        <Route
+            path="/admin/clients"
+            element={<AdminClients />}
+        />
+        <Route
+            path="/admin/settings"
+            element={<AdminSettings />}
+        />
 
-  <Route
-    path="/admin/settings"
-    element={<AdminSettings />}
-  /> */}
-
-</Route>
+        </Route>
 
         <Route path="*" element={<NotFound />} />
         

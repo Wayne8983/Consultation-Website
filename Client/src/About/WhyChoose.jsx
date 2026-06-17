@@ -1,3 +1,6 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
 const reasons = [
   {
     title: "Tailor-Made Solutions",
@@ -32,21 +35,39 @@ const reasons = [
 ];
 
 const WhyChoose = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 1000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
         <div className="text-center">
-          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm">
+          <span className="text-fuchsia-400 uppercase tracking-[0.2em] text-sm"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             Why Choose Us
           </span>
 
-          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white">
+          <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             More Than Consultants
           </h2>
 
-          <p className="mt-6 text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-6 text-slate-400 max-w-2xl mx-auto"
+          data-aos="fade-up"
+          data-aos-delay="100"
+          >
             We partner with organizations to create lasting value,
             strengthen leadership and build high-performance cultures.
           </p>
@@ -57,6 +78,8 @@ const WhyChoose = () => {
 
           {reasons.map((reason, index) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={index}
               className="
                 group
@@ -72,6 +95,8 @@ const WhyChoose = () => {
             >
               {/* Number */}
               <div
+                data-aos="fade-up"
+                data-aos-delay="100"
                 className="
                   w-14 h-14
                   rounded-2xl
@@ -86,11 +111,17 @@ const WhyChoose = () => {
                 0{index + 1}
               </div>
 
-              <h3 className="mt-6 text-xl font-semibold text-white">
+              <h3 className="mt-6 text-xl font-semibold text-white"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {reason.title}
               </h3>
 
-              <p className="mt-4 text-slate-400 leading-relaxed">
+              <p className="mt-4 text-slate-400 leading-relaxed"
+              data-aos="fade-up"
+              data-aos-delay="100"
+              >
                 {reason.description}
               </p>
             </div>

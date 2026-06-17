@@ -1,3 +1,7 @@
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+import AOS from "aos";
+
 const faqs = [
   {
     question: "Do you work with small organizations?",
@@ -17,12 +21,27 @@ const faqs = [
 ];
 
 const FAQ = () => {
+         useEffect(() => {
+            AOS.init({
+              duration: 2000,
+              once: false,
+              offset: 120,
+            });
+      
+            AOS.refresh();
+          }, []);
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-5xl mx-auto px-6">
 
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-white">
+        <div className="text-center"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
+          <h2 className="text-4xl font-bold text-white"
+          data-aos="fade-up"
+          data-aos-delay="200"
+          >
             Frequently Asked Questions
           </h2>
         </div>
@@ -31,6 +50,8 @@ const FAQ = () => {
 
           {faqs.map((faq, index) => (
             <div
+              data-aos="fade-up"
+              data-aos-delay="100"
               key={index}
               className="
                 p-6
@@ -39,11 +60,17 @@ const FAQ = () => {
                 border border-white/10
               "
             >
-              <h3 className="text-white font-semibold">
+              <h3 className="text-white font-semibold"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+              >
                 {faq.question}
               </h3>
 
-              <p className="mt-3 text-slate-400">
+              <p className="mt-3 text-slate-400"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+              >
                 {faq.answer}
               </p>
             </div>
