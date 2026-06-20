@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
+import ProtectedRoute from "../Auth/ProtectedRoute";
+
 import Home from "../Pages/Home";
 import About from "../Pages/About";
 import Services from "../Pages/Services";
@@ -93,31 +95,56 @@ const AppRoutes = () => {
         <Route element={<ClientLayout />}>
         <Route
             path="/client/dashboard"
-                element={<ClientDashboard />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                
+            }
         />
         <Route
           path="/client/project"
-                element={<Projects />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <Projects />
+                    </ProtectedRoute>
+                }
         />
 
         <Route
           path="/client/payments"
-                element={<Payments />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <Payments />
+                    </ProtectedRoute>
+                }
         />
 
         <Route
           path="/client/documents"
-                element={<Documents />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <Documents />
+                    </ProtectedRoute>
+                }
         />
 
         <Route
           path="/client/meetings"
-                element={<Meetings />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <Meetings />
+                    </ProtectedRoute>
+                }
         />
 
         <Route
           path="/client/profile"
-                element={<Profile />}
+                element={
+                    <ProtectedRoute role="client" >
+                        <Profile />
+                    </ProtectedRoute>
+                }
         />
         </Route>
 
@@ -126,40 +153,73 @@ const AppRoutes = () => {
 
         <Route
             path="/admin/dashboard"
-            element={<AdminDashboard />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminDashboard />
+                </ProtectedRoute>
+            
+        }
         />
 
         <Route
             path="/admin/payments"
-            element={<AdminPayments />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminPayments />
+                </ProtectedRoute>
+            }
         />
 
         <Route
             path="/admin/projects"
-            element={<AdminProjects />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminProjects />
+                </ProtectedRoute>
+            }
         />
 
         <Route
             path="/admin/documents"
-            element={<AdminDocuments />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminDocuments />
+                </ProtectedRoute>
+            }
         />
 
         <Route
             path="/admin/meetings"
-            element={<AdminMeetings />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminMeetings />
+                </ProtectedRoute>
+            }
         />
 
         <Route
             path="/admin/consultations"
-            element={<AdminConsultations />}
+            element={
+                <ProtectedRoute to="admin" >
+                    <AdminConsultations />
+                </ProtectedRoute>
+            }
         />
         <Route
             path="/admin/clients"
-            element={<AdminClients />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminClients />
+                </ProtectedRoute>
+            }
         />
         <Route
             path="/admin/settings"
-            element={<AdminSettings />}
+            element={
+                <ProtectedRoute role="admin" >
+                    <AdminSettings />
+                </ProtectedRoute>
+            }
         />
 
         </Route>

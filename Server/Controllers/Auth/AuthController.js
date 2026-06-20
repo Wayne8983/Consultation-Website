@@ -10,7 +10,7 @@ try {
         if(!email || !password){
             return res.status(400).json({
                 success:false,
-                message:"All fields are required"
+                message:"All fields are required!"
             });
         }
         
@@ -61,6 +61,13 @@ try {
                 return res.status(401).json({
                     success:false,
                     message:"Invalid Credentials"
+                })
+            }
+
+            if(client.status==='Suspended'){
+                return res.status(403).json({
+                    success:false,
+                    message:"Account suspended temporarily.Contact Organisation for more info."
                 })
             }
 

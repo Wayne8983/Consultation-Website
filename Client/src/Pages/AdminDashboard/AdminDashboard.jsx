@@ -1,15 +1,66 @@
-import { stats } from "./Data/Data";
+import { useEffect, useState } from "react";
+import api from "../../Service/axios";
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const response = await api.get("/admin/dashboard");
+
+        console.log(response.data);
+
+        setStats(response.data.stats);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-white text-xl">
+        Loading Dashboard...
+      </div>
+    );
+  }
+
+  const dashboardCards = [
+    {
+      title: "Clients",
+      value: stats.clients,
+    },
+    {
+      title: "Consultations",
+      value: stats.consultations,
+    },
+    {
+      title: "Pending",
+      value: stats.pendingConsultations,
+    },
+    {
+      title: "Approved",
+      value: stats.ApprovedConsultations,
+    },
+    {
+      title: "Rejected",
+      value: stats.rejectedConsultations,
+    },
+  ];
 
   return (
     <div className="space-y-8">
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-
-        {stats.map((item, index) => (
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+        {dashboardCards.map((item, index) => (
           <div
             key={index}
             className="
@@ -31,13 +82,12 @@ const AdminDashboard = () => {
             </h2>
           </div>
         ))}
-
       </div>
 
-      {/* Main Area */}
+      {/* Main Section */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-        {/* Recent Activity */}
+        {/* Overview */}
         <div
           className="
             xl:col-span-2
@@ -49,36 +99,43 @@ const AdminDashboard = () => {
           "
         >
           <h2 className="text-xl font-semibold text-white mb-6">
-            Recent Activity
+            Overview
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-4 text-slate-300">
 
             <div className="flex justify-between">
-              <span>New consultation booked</span>
+              <span>Total Clients</span>
               <span className="text-cyan-400">
-                5 mins ago
+                {stats.clients}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span>Client account created</span>
+              <span>Total Consultations</span>
               <span className="text-cyan-400">
-                20 mins ago
+                {stats.consultations}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span>Project updated</span>
-              <span className="text-cyan-400">
-                1 hour ago
+              <span>Pending Consultations</span>
+              <span className="text-yellow-400">
+                {stats.pendingConsultations}
               </span>
             </div>
 
             <div className="flex justify-between">
-              <span>Payment received</span>
-              <span className="text-cyan-400">
-                Today
+              <span>Approved Consultations</span>
+              <span className="text-green-400">
+                {stats.ApprovedConsultations}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Rejected Consultations</span>
+              <span className="text-red-400">
+                {stats.rejectedConsultations}
               </span>
             </div>
 
@@ -101,7 +158,9 @@ const AdminDashboard = () => {
 
           <div className="space-y-3">
 
+            <Link to='/admin/consultations'>
             <button
+              
               className="
                 w-full
                 py-3
@@ -113,8 +172,9 @@ const AdminDashboard = () => {
                 cursor-pointer
               "
             >
-              Add Client
-            </button>
+              View Consultations
+              </button>
+            </Link>
 
             <button
               className="
@@ -129,7 +189,7 @@ const AdminDashboard = () => {
                 cursor-pointer
               "
             >
-              Create Project
+              View Clients
             </button>
 
             <button

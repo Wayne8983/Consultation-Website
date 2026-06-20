@@ -2,16 +2,72 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import LoginPic from '../../assets/LoginPic.png'
 import { motion } from "framer-motion";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [focusField, setFocusField] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const isActive = (value, field) => {
     return focusField === field || value.length > 0;
   };
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setError("");
+
+  // Basic validation
+  if (!email.trim() || !password.trim()) {
+    setError("Email and password are required");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await axios.post(
+      "http://localhost:3000/users/login",
+      {
+        email,
+        password
+      }
+    );
+
+    const data = response.data;
+
+    // Save authentication data
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userType", data.userType);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Redirect based on role
+    if (data.userType === "admin") {
+      navigate("/admin/dashboard");
+    } else if (data.userType === "client") {
+      navigate("/client/dashboard");
+    }
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else {
+      setError("Something went wrong.Please try again");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black from-[#070B14] via-[#0B1020] to-[#0F172A] px-4">
@@ -61,12 +117,12 @@ const Login = () => {
                 Enter your credentials to continue
               </p>
 
-              <form className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
 
                 {/* EMAIL */}
                 <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocusField("email")}
@@ -122,12 +178,19 @@ const Login = () => {
                   </button>
                 </div>
 
+                {error && (
+                  <p className="text-red-500 text-sm">
+                    {error}
+                  </p>
+                )}
+
                 {/* BUTTON */}
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:opacity-90 active:scale-95 transition"
                 >
-                  Login
+                  {loading ? "Logging in..." : "Login"}
                 </button>
 
               </form>

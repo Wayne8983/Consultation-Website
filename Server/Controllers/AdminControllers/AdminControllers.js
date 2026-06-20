@@ -28,9 +28,9 @@ const getOneConsultation = async(req,res)=>{
     try{
         const id = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(404).json({
+            return res.status(400).json({
                 success:false,
-                message:"Invalid Consultation!"
+                message:"Consultation not found!"
             });
         }
         const consultation = await Consultations.findById(id);
