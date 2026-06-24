@@ -37,6 +37,18 @@ const bookConsultation = async(req,res)=>{
 
 
     }catch(err){
+        // Check if the error comes from Mongoose model validation
+        if (err.name === 'ValidationError') {
+        const formattedErrors = {};
+        
+        // Loop through fields to extract our custom messages
+        Object.keys(err.errors).forEach((key) => {
+            formattedErrors[key] = err.errors[key].message;
+        });
+
+        // Send 400 Bad Request with the error dictionary
+        return res.status(400).json({ errors: formattedErrors });
+        }
 
         console.log('Consultation Booking error',err);
 

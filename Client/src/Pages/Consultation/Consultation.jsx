@@ -1,6 +1,86 @@
-
+import axios from "axios";
+import { useState } from "react";
+const BackendURL = import.meta.env.VITE_BackendURL
 
 const Consultation = () => {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageColor, setMessageColor] = useState("text-green-500");
+
+  const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  company: "",
+  projectType: "",
+  description: "",
+  preferredContactMethod: ""
+});
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    setLoading(true);
+
+    const response = await axios.post(
+      `${BackendURL}/api/consultations`,
+      formData
+    );
+
+    if (response.data.success) {
+      setMessage(response.data.message);
+      setMessageColor("text-green-500");
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        projectType: "",
+        description: "",
+        preferredContactMethod: ""
+      });
+
+      setTimeout(() => {
+        setMessage("");
+      }, 5000);
+    }
+  } catch (err) {
+
+  if (err.response?.data?.errors) {
+
+    const validationErrors = Object.values(
+      err.response.data.errors
+    );
+
+    setMessage(validationErrors.join(", "));
+  } else {
+
+    setMessage(
+      err.response?.data?.message ||
+      "Something went wrong. Please try again later."
+    );
+  }
+
+  setMessageColor("text-red-500");
+
+  setTimeout(() => {
+    setMessage("");
+    setLoading(false);
+  }, 5000);
+
+}
+};
+
+
   return (
     <div className="min-h-screen bg-[#0B1020] text-white">
 
@@ -75,7 +155,7 @@ const Consultation = () => {
             Provide a few details about your project and we'll get back to you shortly.
           </p>
 
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
 
         <div className="grid md:grid-cols-2 gap-6">
 
@@ -86,7 +166,9 @@ const Consultation = () => {
 
             <input
                 type="text"
-                required
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="name"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
@@ -99,7 +181,9 @@ const Consultation = () => {
 
             <input
                 type="email"
-                required
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="name@example.com"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
@@ -116,7 +200,9 @@ const Consultation = () => {
 
             <input
                 type="tel"
-                required
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 placeholder="+254..."
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
@@ -129,7 +215,9 @@ const Consultation = () => {
 
             <input
                 type="text"
-                required
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
                 placeholder="Your Company"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
@@ -138,43 +226,19 @@ const Consultation = () => {
         </div>
 
         <div>
-            <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-            Project Type <p className="text-red-600" >*</p>
-            </label>
+          <label className="flex gap-1 block mb-2 text-sm text-gray-300">
+            Project Type
+            <p className="text-red-600">*</p>
+          </label>
 
-            <select
-            required
-            defaultValue=""
-            className="w-full bg-[#111827] text-white border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            >
-            <option value="" disabled>
-                Select Project Type 
-            </option>
-
-            <option value="web">
-                Web Development
-            </option>
-
-            <option value="mobile">
-                Mobile Application
-            </option>
-
-            <option value="consulting">
-                Business Consulting
-            </option>
-
-            <option value="analytics">
-                Data Analytics
-            </option>
-
-            <option value="ai">
-                Artificial Intelligence
-            </option>
-
-            <option value="other">
-                Other
-            </option>
-            </select>
+            <input
+              type="text"
+              name="projectType"
+              value={formData.projectType}
+              onChange={handleChange}
+              placeholder="e.g. E-commerce Website, Mobile App, AI Solution..."
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
+            />
         </div>
 
         <div>
@@ -183,7 +247,9 @@ const Consultation = () => {
             </label>
 
             <textarea
-            required
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
             rows="6"
             placeholder="Tell us about your project goals, requirements, timeline, and any additional information..."
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none resize-none focus:border-purple-500"
@@ -200,9 +266,10 @@ const Consultation = () => {
             <label className="flex items-center gap-3 cursor-pointer">
                 <input
                 type="radio"
-                name="contactMethod"
+                name="preferredContactMethod"
                 value="email"
-                required
+                checked={formData.preferredContactMethod === "email"}
+                onChange={handleChange}
                 />
                 <span>Email</span>
             </label>
@@ -210,8 +277,10 @@ const Consultation = () => {
             <label className="flex items-center gap-3 cursor-pointer">
                 <input
                 type="radio"
-                name="contactMethod"
+                name="preferredContactMethod"
                 value="phone"
+                checked={formData.preferredContactMethod === "phone"}
+                onChange={handleChange}
                 />
                 <span>Phone Call</span>
             </label>
@@ -219,20 +288,27 @@ const Consultation = () => {
             <label className="flex items-center gap-3 cursor-pointer">
                 <input
                 type="radio"
-                name="contactMethod"
+                name="preferredContactMethod"
                 value="whatsapp"
+                checked={formData.preferredContactMethod === "whatsapp"}
+                onChange={handleChange}
                 />
                 <span>WhatsApp</span>
             </label>
 
             </div>
         </div>
-
+        {message && (
+          <p className={`text-center font-medium ${messageColor}`}>
+            {message}
+          </p>
+        )}
         <button
             type="submit"
+            disabled={loading}
             className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-500 transition-all duration-300 font-semibold cursor-pointer"
         >
-            Request Consultation 
+            {loading ? "Submitting..." : "Request Consultation"} 
         </button>
 
         </form>

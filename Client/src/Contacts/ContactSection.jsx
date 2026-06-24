@@ -31,7 +31,7 @@ const ContactSection = () => {
             e.preventDefault();
             setLoading(true);
 
-            const response = await axios.post(BackendURL+'api/contactMessage',{name,message,email});
+            const response = await axios.post(BackendURL+'/api/contactMessage',{name,message,email});
             if(response.data.success){
             setColor("text-green-500");
             setError(response.data.message);
