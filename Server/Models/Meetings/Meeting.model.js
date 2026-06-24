@@ -11,18 +11,22 @@ const meetingSchema = new mongoose.Schema({
         required:true
     },
     description:{
-        type:String,
-        required:true
+        type:String
     },
     meetingDate:{
         type:Date,
-        require:true
+        required:true
     },
     venue:{
         type:String,
         required:true
     },
+    createdBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Admin"
+    },
     status:{
+        type:String,
         enum:["Scheduled","Completed","Cancelled"],
         default:"Scheduled"        
     }
@@ -33,8 +37,8 @@ const meetingSchema = new mongoose.Schema({
 }
 )
 
-const meeting = mongoose.model(
+const Meeting = mongoose.model(
     "meeting",meetingSchema
 );
 
-module.exports = meeting;
+module.exports = Meeting;

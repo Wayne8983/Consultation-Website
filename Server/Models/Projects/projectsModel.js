@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const projectSchema = new mongoose.Schema({
-    clientId:{
+    client:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Client"
     },
@@ -16,7 +16,7 @@ const projectSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["Pending","In Progress","Completed","On Hold","Cancelled"],
+        enum:["Pending","Active","Completed","Paused","Cancelled"],
         default:"Pending"
     },
     startDate:{

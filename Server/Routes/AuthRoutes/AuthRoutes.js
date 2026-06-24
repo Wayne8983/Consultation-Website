@@ -7,9 +7,6 @@ const router = express.Router();
 
 router.post('/login',logIn);
 
-router.get('/profile',authenticate,Authorize("client",'admin'),(req,res)=>{
-    res.send('Welcome to your admin profiole');
-});
 
 
 

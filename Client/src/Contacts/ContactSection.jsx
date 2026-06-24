@@ -1,17 +1,72 @@
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 import AOS from "aos";
+import { useState } from "react";
+import axios from 'axios'
+const BackendURL = import.meta.env.VITE_BackendURL;
+
 
 const ContactSection = () => {
-         useEffect(() => {
-            AOS.init({
-              duration: 2000,
-              once: false,
-              offset: 120,
-            });
-      
-            AOS.refresh();
-          }, []);
+  const [name,setName]=useState("");
+  const [message,setMessage]=useState("");
+  const [email,setEmail]=useState("");
+  const [error,setError]=useState("");
+  const [color,setColor] =useState("");
+  const [loading,setLoading]=useState(false);
+
+
+        useEffect(() => {
+          AOS.init({
+            duration: 2000,
+            once: false,
+            offset: 120,
+          });
+    
+          AOS.refresh();
+        }, []);
+
+        //the handle submit 
+        const handleSubmit = async(e)=>{
+          try{
+            e.preventDefault();
+            setLoading(true);
+
+            const response = await axios.post(BackendURL+'api/contactMessage',{name,message,email});
+            if(response.data.success){
+            setColor("text-green-500");
+            setError(response.data.message);
+
+
+              //this is a function to clear the fields in a span provided
+              setTimeout(()=>{
+                setError("");
+                setName("");
+                setEmail("");
+                setMessage("");
+              },[3000]);
+            }
+          
+
+
+
+          }catch(err){
+            console.log(err);
+            setColor("text-red-600");
+            setLoading(false);
+            setError(err.response.data.message || "Something went wrong please try again later" );
+
+            setTimeout(()=>{
+              setError("");
+            },[4000])
+            
+          }finally{
+            setTimeout(()=>{
+              setLoading(false);
+            },[2000])
+        }
+      }
+
+
   return (
     <section className="bg-[#0b0b10] py-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -37,7 +92,9 @@ const ContactSection = () => {
               Send Us A Message
             </h2>
 
-            <form className="mt-8 space-y-6"
+            <form 
+                  onSubmit={handleSubmit}
+                  className="mt-8 space-y-6"
                   data-aos="fade-up"
                   data-aos-delay="100"
             >
@@ -45,6 +102,8 @@ const ContactSection = () => {
               <input
                 type="text"
                 placeholder="Your Name"
+                value={name}
+                onChange={(e)=>setName(e.target.value)}
                 className="
                   w-full
                   bg-white/5
@@ -60,6 +119,8 @@ const ContactSection = () => {
               <input
                 type="email"
                 placeholder="Email Address"
+                value={email}
+                onChange={(e)=>setEmail(e.target.value)}
                 className="
                   w-full
                   bg-white/5
@@ -75,6 +136,8 @@ const ContactSection = () => {
               <textarea
                 rows="6"
                 placeholder="Your Message"
+                value={message}
+                onChange={(e)=>setMessage(e.target.value)}
                 className="
                   w-full
                   bg-white/5
@@ -86,8 +149,11 @@ const ContactSection = () => {
                   focus:border-fuchsia-500
                 "
               />
+              <p className={color} >{error}</p>
 
               <button
+                // onClick={()=>setLoading(true)}
+                type="submit"
                 data-aos="fade-up"
                 data-aos-delay="100"
                 className="
@@ -99,7 +165,7 @@ const ContactSection = () => {
                   transition
                 "
               >
-                Send Message
+                {loading?'Sending...':'Send Message'}
               </button>
 
             </form>

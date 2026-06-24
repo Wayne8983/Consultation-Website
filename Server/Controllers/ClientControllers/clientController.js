@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const Client = require("../../Models/Clients/Client.model");
+const Admin = require("../../Models/Admin/Admin.model");
 const Project = require("../../Models/Projects/projectsModel");
 const { HashPassword, ConfirmHash } = require("../../Utils/HashPassword");
 const validator = require("validator");
@@ -136,96 +137,6 @@ const suspendClient = async(req,res)=>{
 };
 
 
-const createProject = async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        // Validate Client ID
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid client!"
-            });
-        }
-
-        const {
-            title,
-            description,
-            startDate,
-            deadline,
-            budget
-        } = req.body;
-
-        // Required fields
-        if (!title || !description || !startDate || !deadline) {
-            return res.status(400).json({
-                success: false,
-                message: "All required fields must be provided!"
-            });
-        }
-
-        // Validate dates
-        const start = new Date(startDate);
-        const end = new Date(deadline);
-
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid date format"
-            });
-        }
-
-        // Validate deadline
-        if (end < start) {
-            return res.status(400).json({
-                success: false,
-                message: "Deadline cannot be before start date"
-            });
-        }
-
-        // Check client exists
-        const client = await Client.findById(id);
-
-        if (!client) {
-            return res.status(404).json({
-                success: false,
-                message: "Client not found"
-            });
-        }
-
-        // Activate client if not already active
-        if (client.status !== "Active") {
-            client.status = "Active";
-            await client.save();
-        }
-
-        // Create project
-        const project = await Project.create({
-            clientId: id,
-            title,
-            description,
-            startDate: start,
-            deadline: end,
-            budget,
-            status: "Pending"
-        });
-
-        return res.status(201).json({
-            success: true,
-            message: "Project created successfully",
-            project
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error. Please try again later."
-        });
-    }
-};
-
 const changePassword = async(req,res)=>{
     try{
         const id = req.params.id;
@@ -302,9 +213,31 @@ const changePassword = async(req,res)=>{
 }
 
 
-const getUserProfile = async(req,res)=>{
+const getClientProfile = async(req,res)=>{
     try{
-        // const user = await 
+        const id = req.user.id;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user!"
+            });
+        }
+        const user = await Client.findById(id)
+        .select("-password -mustChangePassword")
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message:"Invalid user"
+            });
+        }
+
+        return res.status(200).json({
+            success:true,
+            user
+        });
+
+
+
     }catch(err){
         console.error(err);
 
@@ -324,7 +257,6 @@ const getUserProfile = async(req,res)=>{
 module.exports = {
     createClient,
     suspendClient,
-    createProject,
     changePassword,
-    getUserProfile
+    getClientProfile
 };
