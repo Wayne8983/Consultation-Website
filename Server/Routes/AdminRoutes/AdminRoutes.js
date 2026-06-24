@@ -22,21 +22,36 @@ const {
     getMeeting,
     updateMeeting,
     deleteMeeting} = require("../../Controllers/MeetingsController/MeetingsController");
-const { createProject, allAdminProjects } = require("../../Controllers/ProjectsControllers/ProjectsControllers");
+const { createProject, 
+    allAdminProjects, 
+    singleProject, 
+    updateProject, 
+    completeProject, 
+    deleteProject, 
+    oneClientProject, 
+    cancelProject} = require("../../Controllers/ProjectsControllers/ProjectsControllers");
 
 const router = express.Router();
 
 
-// CLIENTS
+// CLIENTS Routes
 router.post('/clients', authenticate, Authorize("admin"), createClient);
 router.get('/clients', authenticate, Authorize("admin"), allClients);
 router.get('/clients/:id', authenticate, Authorize("admin"), oneClient);
 router.patch('/clients/:id/suspend', authenticate, Authorize("admin"), suspendClient);
 router.patch('/clients/:id/change-password', authenticate, Authorize("admin"), changePassword);
 
-// PROJECTS
+// PROJECTS Routes
 router.post('/clients/:id/projects', authenticate, Authorize("admin"), createProject);
-router.get('/api/allProjects',authenticate,Authorize("admin"),allAdminProjects);
+router.get('/Projects',authenticate,Authorize("admin"),allAdminProjects);
+router.get('/Projects/:id',authenticate,Authorize("admin"),singleProject);
+router.patch('/Projects/update/:id',authenticate,Authorize("admin"),updateProject);
+router.patch('/Projects/update/:id',authenticate,Authorize("admin"),completeProject);
+router.delete('/Projects/delete/:id',authenticate,Authorize("admin"),deleteProject);
+router.patch('/cancelProject/:id',authenticate,Authorize("admin"),cancelProject);
+
+router.get('/Clients/:id/projects',authenticate,Authorize("admin"),oneClientProject);
+
 
 // CONSULTATIONS
 router.get('/consultations', authenticate, Authorize("admin"), getAllConsultations);

@@ -3,7 +3,8 @@ const Client = require('../../Models/Clients/Client.model');
 const generateStrongPassword = require('../../Services/generateRandomPassword');
 const { HashPassword } = require('../../Utils/HashPassword');
 const  sendEmail  = require('../../Services/mailService');
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const Project = require('../../Models/Projects/projectsModel');
 
 const getAllConsultations = async(req,res)=>{
     try {
@@ -290,6 +291,9 @@ const adminDashboard = async(req,res)=>{
         //Return all Consultations
         const consultations = await Consultations.countDocuments({});
 
+        //Return Number of projects done
+        const Projects = await  Project.countDocuments({});
+
         //pending Consultations
         const pendingConsultations = await Consultations.countDocuments({ status:"Pending" });
         const rejectedConsultations = await Consultations.countDocuments({ status:"Rejected" });
@@ -299,6 +303,7 @@ const adminDashboard = async(req,res)=>{
         return res.status(200).json({
             success:true,
             stats:{
+                Projects,
                 clients,
                 consultations,
                 pendingConsultations,
