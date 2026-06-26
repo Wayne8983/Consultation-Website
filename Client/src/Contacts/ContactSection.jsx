@@ -196,7 +196,7 @@ const ContactSection = () => {
                     data-aos="fade-up"
                     data-aos-delay="100"
                 >
-                  info@strategycenter.co.ke
+                  hello@strategycenter.co.ke
                 </p>
               </div>
 
