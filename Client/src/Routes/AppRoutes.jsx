@@ -200,7 +200,7 @@ const AppRoutes = () => {
         <Route
             path="/admin/consultations"
             element={
-                <ProtectedRoute to="admin" >
+                <ProtectedRoute role="admin" >
                     <AdminConsultations />
                 </ProtectedRoute>
             }

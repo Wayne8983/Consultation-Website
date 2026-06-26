@@ -46,7 +46,7 @@ router.post('/clients/:id/projects', authenticate, Authorize("admin"), createPro
 router.get('/Projects',authenticate,Authorize("admin"),allAdminProjects);
 router.get('/Projects/:id',authenticate,Authorize("admin"),singleProject);
 router.patch('/Projects/update/:id',authenticate,Authorize("admin"),updateProject);
-router.patch('/Projects/update/:id',authenticate,Authorize("admin"),completeProject);
+router.patch('/Projects/:id/complete',authenticate,Authorize("admin"),completeProject);
 router.delete('/Projects/delete/:id',authenticate,Authorize("admin"),deleteProject);
 router.patch('/cancelProject/:id',authenticate,Authorize("admin"),cancelProject);
 

@@ -16,8 +16,7 @@ const projectSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["Active","Completed","Paused","Cancelled"],
-        default:"Pending"
+        enum:["Active","Completed","Paused","Cancelled"]
     },
     startDate:{
         type:Date,

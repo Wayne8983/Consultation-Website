@@ -1,404 +1,342 @@
-const Projects = () => {
-  const milestones = [
-    {
-      title: "Discovery & Planning",
-      status: "completed",
-    },
-    {
-      title: "UI/UX Design",
-      status: "completed",
-    },
-    {
-      title: "Frontend Development",
-      status: "active",
-    },
-    {
-      title: "Testing",
-      status: "pending",
-    },
-    {
-      title: "Deployment",
-      status: "pending",
-    },
-  ];
+import { useEffect, useMemo, useState } from "react";
+import {
+  FiAlertTriangle,
+  FiCalendar,
+  FiCheckCircle,
+  FiClock,
+  FiFolder,
+  FiPauseCircle,
+  FiTrendingUp,
+  FiXCircle,
+} from "react-icons/fi";
+import api from "../../Service/axios";
+import { DashboardSkeleton } from "../Skeleton/Skeleton";
 
-  const deliverables = [
-    {
-      title: "Project Requirements",
-      done: true,
-    },
-    {
-      title: "Wireframes",
-      done: true,
-    },
-    {
-      title: "UI Design System",
-      done: true,
-    },
-    {
-      title: "Frontend Build",
-      done: false,
-    },
-    {
-      title: "Production Deployment",
-      done: false,
-    },
-  ];
+const getErrorMessage = (err) => {
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.response?.status === 401) return "You are not logged in or your session expired.";
+  if (err.response?.status === 403) return "This account is not allowed to view projects.";
+  if (err.code === "ERR_NETWORK") return "Cannot connect to the backend. Make sure the server is running on port 3000.";
+  return "Something went wrong while loading your projects.";
+};
+
+const formatDate = (dateValue) => {
+  if (!dateValue) return "No date set";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const getStatusStyles = (status) => {
+  if (status === "Completed") {
+    return "bg-green-500/15 text-green-400";
+  }
+
+  if (status === "Cancelled") {
+    return "bg-red-500/15 text-red-400";
+  }
+
+  if (status === "Paused") {
+    return "bg-yellow-500/15 text-yellow-400";
+  }
+
+  return "bg-white/5 text-gray-300";
+};
+
+const getStatusIcon = (status) => {
+  if (status === "Completed") return <FiCheckCircle />;
+  if (status === "Cancelled") return <FiXCircle />;
+  if (status === "Paused") return <FiPauseCircle />;
+  return <FiTrendingUp />;
+};
+
+const Projects = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pageError, setPageError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    api
+      .get("/client/getClientProjects")
+      .then((res) => {
+        if (cancelled) return;
+
+        const data = res.data?.clientProjects;
+
+        if (Array.isArray(data)) {
+          setProjects(data);
+        } else {
+          setProjects([]);
+          setPageError("Backend response did not include a projects array.");
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+
+        console.log(err);
+        setProjects([]);
+        setPageError(getErrorMessage(err));
+      })
+      .finally(() => {
+        if (cancelled) return;
+
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const stats = useMemo(() => {
+    const active = projects.filter((project) => project.status === "Active").length;
+    const completed = projects.filter((project) => project.status === "Completed").length;
+    const paused = projects.filter((project) => project.status === "Paused").length;
+
+    const averageProgress =
+      projects.length === 0
+        ? 0
+        : Math.round(
+            projects.reduce(
+              (total, project) => total + (project.progress || 0),
+              0
+            ) / projects.length
+          );
+
+    return {
+      total: projects.length,
+      active,
+      completed,
+      paused,
+      averageProgress,
+    };
+  }, [projects]);
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-8">
+      <section className="relative overflow-hidden rounded-[28px] border border-red-900/20 bg-black/40 backdrop-blur-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(220,38,38,.08)]">
+        <div className="absolute -top-28 -right-20 h-72 w-72 rounded-full bg-red-700/10 blur-[100px]" />
 
-      {/* Hero Card */}
-      <div
-        className="
-          relative
-          overflow-hidden
-          rounded-3xl
-          border border-white/10
-          bg-gradient-to-br
-          from-purple-600/20
-          via-[#111827]
-          to-[#0B1020]
-          p-8
-        "
-      >
-
-        <div
-          className="
-            absolute
-            right-0
-            top-0
-            h-52
-            w-52
-            rounded-full
-            bg-purple-500/20
-            blur-3xl
-          "
-        />
-
-        <div className="relative z-10">
-
-          <div className="flex flex-wrap items-center gap-3">
-
-            <span
-              className="
-                px-3 py-1
-                rounded-full
-                bg-green-500/15
-                text-green-400
-                text-sm
-              "
-            >
-              In Progress
-            </span>
-
-            <span
-              className="
-                px-3 py-1
-                rounded-full
-                bg-purple-500/15
-                text-purple-300
-                text-sm
-              "
-            >
-              Client Portal
-            </span>
-
-          </div>
-
-          <h1
-            className="
-              text-4xl
-              font-bold
-              text-white
-              mt-4
-            "
-          >
-            Consultancy Management Platform
-          </h1>
-
-          <p
-            className="
-              text-slate-400
-              max-w-2xl
-              mt-3
-            "
-          >
-            Building a modern client-facing platform
-            with project tracking, payments,
-            documents and consultation management.
+        <div className="relative">
+          <p className="text-red-400 text-xs uppercase tracking-[0.35em] mb-3">
+            Project Center
           </p>
 
+          <h1 className="text-3xl md:text-4xl font-bold text-white">
+            Projects
+          </h1>
+
+          <p className="text-gray-400 mt-3 max-w-2xl">
+            View your assigned projects, track progress, deadlines and current status.
+          </p>
         </div>
+      </section>
 
-      </div>
+      {pageError && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-600/10 p-5 flex gap-3 text-red-200">
+          <FiAlertTriangle className="mt-1 shrink-0" />
 
-      {/* Stats */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          xl:grid-cols-4
-          gap-5
-        "
-      >
-
-        {[
-          {
-            title: "Progress",
-            value: "65%",
-          },
-          {
-            title: "Deadline",
-            value: "28 Jun",
-          },
-          {
-            title: "Milestones",
-            value: "3 / 5",
-          },
-          {
-            title: "Deliverables",
-            value: "3 / 5",
-          },
-        ].map((card, index) => (
-          <div
-            key={index}
-            className="
-              rounded-2xl
-              border border-white/10
-              bg-white/[0.03]
-              backdrop-blur-xl
-              p-5
-              hover:border-purple-500/30
-              transition
-            "
-          >
-            <p
-              className="
-                text-xs
-                uppercase
-                tracking-widest
-                text-slate-500
-              "
-            >
-              {card.title}
+          <div>
+            <p className="font-medium">
+              Could not load projects
             </p>
 
-            <h2
-              className="
-                text-3xl
-                font-bold
-                text-white
-                mt-3
-              "
-            >
-              {card.value}
-            </h2>
+            <p className="text-sm text-red-200/80 mt-1">
+              {pageError}
+            </p>
           </div>
-        ))}
-
-      </div>
-
-      {/* Progress */}
-      <div
-        className="
-          rounded-3xl
-          border border-white/10
-          bg-white/[0.03]
-          backdrop-blur-xl
-          p-6
-        "
-      >
-
-        <div className="flex justify-between mb-4">
-
-          <h2
-            className="
-              text-lg
-              font-semibold
-              text-white
-            "
-          >
-            Overall Progress
-          </h2>
-
-          <span className="text-purple-400">
-            65%
-          </span>
-
         </div>
+      )}
 
-        <div
-          className="
-            h-4
-            rounded-full
-            bg-white/5
-            overflow-hidden
-          "
-        >
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <StatCard
+          label="Total Projects"
+          value={stats.total}
+          icon={<FiFolder />}
+        />
 
-          <div
-            className="
-              h-full
-              w-[65%]
-              rounded-full
-              bg-gradient-to-r
-              from-purple-500
-              via-violet-500
-              to-fuchsia-500
-            "
-          />
+        <StatCard
+          label="Active"
+          value={stats.active}
+          icon={<FiTrendingUp />}
+        />
 
-        </div>
+        <StatCard
+          label="Completed"
+          value={stats.completed}
+          icon={<FiCheckCircle />}
+        />
 
-      </div>
+        <StatCard
+          label="Avg Progress"
+          value={`${stats.averageProgress}%`}
+          icon={<FiClock />}
+        />
+      </section>
 
-      {/* Bottom Grid */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          xl:grid-cols-2
-          gap-6
-        "
-      >
+      <section className="grid gap-5">
+        {!pageError && projects.length === 0 ? (
+          <div className="rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-8 text-gray-400">
+            No projects have been assigned yet.
+          </div>
+        ) : (
+          projects.map((project) => (
+            <div
+              key={project._id}
+              className="rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-6 shadow-[0_0_35px_rgba(220,38,38,.06)]"
+            >
+              <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-start gap-3">
+                    <div className="h-11 w-11 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+                      <FiFolder />
+                    </div>
 
-        {/* Milestones */}
-        <div
-          className="
-            rounded-3xl
-            border border-white/10
-            bg-white/[0.03]
-            backdrop-blur-xl
-            p-6
-          "
-        >
+                    <div>
+                      <h2 className="text-xl font-semibold text-white">
+                        {project.title}
+                      </h2>
 
-          <h2
-            className="
-              text-lg
-              font-semibold
-              text-white
-              mb-6
-            "
-          >
-            Project Milestones
-          </h2>
+                      <p className="text-gray-500 text-sm mt-1">
+                        {project.client?.email || "Client project"}
+                      </p>
+                    </div>
+                  </div>
 
-          <div className="space-y-5">
+                  <p className="text-gray-400 mt-5">
+                    {project.description || "No description provided."}
+                  </p>
 
-            {milestones.map((item, index) => (
-              <div
-                key={index}
-                className="
-                  flex
-                  items-center
-                  justify-between
-                "
-              >
+                  {project.notes && (
+                    <div className="mt-5 rounded-2xl border border-red-900/20 bg-white/[0.04] p-4">
+                      <p className="text-xs uppercase tracking-widest text-gray-500">
+                        Latest Note
+                      </p>
 
-                <div className="flex items-center gap-3">
+                      <p className="text-gray-300 text-sm mt-2">
+                        {project.notes}
+                      </p>
+                    </div>
+                  )}
 
-                  <div
-                    className={`
-                      h-3
-                      w-3
-                      rounded-full
-                      ${
-                        item.status === "completed"
-                          ? "bg-green-400"
-                          : item.status === "active"
-                          ? "bg-purple-500"
-                          : "bg-slate-600"
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <InfoBlock
+                      label="Start Date"
+                      value={formatDate(project.startDate)}
+                      icon={<FiCalendar />}
+                    />
+
+                    <InfoBlock
+                      label="Deadline"
+                      value={formatDate(project.deadline)}
+                      icon={<FiClock />}
+                    />
+
+                    <InfoBlock
+                      label="Budget"
+                      value={
+                        project.budget
+                          ? Number(project.budget).toLocaleString()
+                          : "Not set"
                       }
-                    `}
-                  />
-
-                  <span className="text-slate-300">
-                    {item.title}
-                  </span>
-
+                      icon={<FiTrendingUp />}
+                    />
+                  </div>
                 </div>
 
-                <span
-                  className="
-                    text-xs
-                    uppercase
-                    tracking-wider
-                    text-slate-500
-                  "
-                >
-                  {item.status}
-                </span>
+                <div className="xl:w-72 space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${getStatusStyles(project.status)}`}
+                    >
+                      {getStatusIcon(project.status)}
+                      {project.status || "Active"}
+                    </span>
 
+                    <span className="text-red-400 font-semibold">
+                      {project.progress || 0}%
+                    </span>
+                  </div>
+
+                  <div className="h-3 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-red-500"
+                      style={{
+                        width: `${project.progress || 0}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="rounded-2xl border border-red-900/20 bg-white/[0.04] p-4">
+                    <p className="text-xs uppercase tracking-widest text-gray-500">
+                      Progress Summary
+                    </p>
+
+                    <p className="text-gray-300 text-sm mt-2">
+                      This project is currently {project.status || "Active"} with{" "}
+                      {project.progress || 0}% completion.
+                    </p>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+          ))
+        )}
+      </section>
+    </div>
+  );
+};
 
-          </div>
-
+const StatCard = ({ label, value, icon }) => {
+  return (
+    <div className="rounded-2xl border border-red-900/20 bg-white/[0.04] backdrop-blur-xl p-5 hover:border-red-500/30 hover:bg-red-600/[0.06] transition-all">
+      <div className="flex items-center justify-between">
+        <div className="h-12 w-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400">
+          {icon}
         </div>
 
-        {/* Deliverables */}
-        <div
-          className="
-            rounded-3xl
-            border border-white/10
-            bg-white/[0.03]
-            backdrop-blur-xl
-            p-6
-          "
-        >
-
-          <h2
-            className="
-              text-lg
-              font-semibold
-              text-white
-              mb-6
-            "
-          >
-            Deliverables
-          </h2>
-
-          <div className="space-y-4">
-
-            {deliverables.map((item, index) => (
-              <div
-                key={index}
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  p-4
-                  rounded-xl
-                  bg-white/5
-                "
-              >
-
-                <span className="text-slate-300">
-                  {item.title}
-                </span>
-
-                <span
-                  className={
-                    item.done
-                      ? "text-green-400"
-                      : "text-slate-500"
-                  }
-                >
-                  {item.done ? "✓" : "○"}
-                </span>
-
-              </div>
-            ))}
-
-          </div>
-
-        </div>
-
+        <span className="text-xs text-gray-500 uppercase tracking-widest">
+          Total
+        </span>
       </div>
 
+      <h2 className="text-3xl font-bold text-white mt-5">
+        {value}
+      </h2>
+
+      <p className="text-gray-400 text-sm mt-1">
+        {label}
+      </p>
+    </div>
+  );
+};
+
+const InfoBlock = ({ label, value, icon }) => {
+  return (
+    <div className="rounded-2xl border border-red-900/20 bg-white/[0.04] p-4">
+      <div className="flex items-center gap-2 text-red-400">
+        {icon}
+        <p className="text-xs uppercase tracking-widest text-gray-500">
+          {label}
+        </p>
+      </div>
+
+      <p className="text-white text-sm mt-3">
+        {value}
+      </p>
     </div>
   );
 };

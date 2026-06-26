@@ -1,94 +1,88 @@
-import axios from "axios";
 import { useState } from "react";
-const BackendURL = import.meta.env.VITE_BackendURL
+import {
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiSend,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiBriefcase,
+} from "react-icons/fi";
+import api from "../../Service/axios";
 
-const Consultation = () => {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageColor, setMessageColor] = useState("text-green-500");
-
-  const [formData, setFormData] = useState({
+const initialFormData = {
   name: "",
   email: "",
   phone: "",
   company: "",
   projectType: "",
   description: "",
-  preferredContactMethod: ""
-});
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    setLoading(true);
-
-    const response = await axios.post(
-      `${BackendURL}/api/consultations`,
-      formData
-    );
-
-    if (response.data.success) {
-      setMessage(response.data.message);
-      setMessageColor("text-green-500");
-
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        company: "",
-        projectType: "",
-        description: "",
-        preferredContactMethod: ""
-      });
-
-      setTimeout(() => {
-        setMessage("");
-      }, 5000);
-    }
-  } catch (err) {
-
-  if (err.response?.data?.errors) {
-
-    const validationErrors = Object.values(
-      err.response.data.errors
-    );
-
-    setMessage(validationErrors.join(", "));
-  } else {
-
-    setMessage(
-      err.response?.data?.message ||
-      "Something went wrong. Please try again later."
-    );
-  }
-
-  setMessageColor("text-red-500");
-
-  setTimeout(() => {
-    setMessage("");
-    setLoading(false);
-  }, 5000);
-
-}
+  preferredContactMethod: "",
 };
 
+const Consultation = () => {
+  const [formData, setFormData] = useState(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const getErrorMessage = (err) => {
+    if (err.response?.data?.errors) {
+      return Object.values(err.response.data.errors).join(", ");
+    }
+
+    if (err.response?.data?.message) {
+      return err.response.data.message;
+    }
+
+    if (err.code === "ERR_NETWORK") {
+      return "Cannot connect to the server. Please try again later.";
+    }
+
+    return "Something went wrong. Please try again later.";
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setMessage("");
+    setMessageType("");
+
+    try {
+      setLoading(true);
+
+      const response = await api.post("/api/consultations", formData);
+
+      if (response.data.success) {
+        setMessage(response.data.message || "Consultation request sent successfully.");
+        setMessageType("success");
+        setFormData(initialFormData);
+      }
+    } catch (err) {
+      console.log(err);
+      setMessage(getErrorMessage(err));
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0B1020] text-white">
+      <section className="relative overflow-hidden py-24">
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-purple-600/20 blur-[150px]" />
 
-      {/* Hero Section */}
-      <section className="relative py-24">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-
-          <span className="px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-sm">
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
+          <span className="inline-flex px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-sm">
             Consultation Request
           </span>
 
@@ -98,226 +92,273 @@ const handleSubmit = async (e) => {
           </h1>
 
           <p className="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
-            Share your project goals, requirements, and timeline.
-            Our team will review your request and contact you
-            to schedule a consultation.
+            Share your project goals, requirements, and timeline. Our team will review your request and contact you shortly.
           </p>
         </div>
       </section>
 
-      {/* Trust Cards */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="grid md:grid-cols-3 gap-6">
+          <InfoCard
+            title="Fast Response"
+            text="We review consultation requests within 24 to 48 hours."
+          />
 
-          <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Fast Response
-            </h3>
+          <InfoCard
+            title="Tailored Solutions"
+            text="Every project receives a customized strategy and implementation plan."
+          />
 
-            <p className="text-gray-400">
-              We review consultation requests within 24–48 hours.
-            </p>
-          </div>
-
-          <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Tailored Solutions
-            </h3>
-
-            <p className="text-gray-400">
-              Every project receives a customized strategy and implementation plan.
-            </p>
-          </div>
-
-          <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Transparent Pricing
-            </h3>
-
-            <p className="text-gray-400">
-              Clear project budgets and milestone-based payment structures.
-            </p>
-          </div>
-
+          <InfoCard
+            title="Transparent Process"
+            text="Clear project scope, milestones, timelines, and next steps."
+          />
         </div>
       </section>
 
-      {/* Consultation Form */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
-
         <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12">
-
           <h2 className="text-3xl font-bold mb-2">
             Project Consultation Form
           </h2>
 
           <p className="text-gray-400 mb-10">
-            Provide a few details about your project and we'll get back to you shortly.
+            Provide a few details about your project and we will get back to you shortly.
           </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-        <div className="grid md:grid-cols-2 gap-6">
-
-            <div>
-            <label className=" flex gap-1 block mb-2 text-sm text-gray-300">
-                Full Name <p className="text-red-600" >*</p>
-            </label>
-
-            <input
-                type="text"
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                icon={<FiUser />}
+                label="Full Name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="FirstName SecondName"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
-            </div>
+                placeholder="First name Second name"
+                required
+              />
 
-            <div>
-            <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-                Email Address <p className="text-red-600" >*</p>
-            </label>
-
-            <input
-                type="email"
+              <Input
+                icon={<FiMail />}
+                label="Email Address"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="name@example.com"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
+                required
+              />
             </div>
 
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-
-            <div>
-            <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-                Phone Number <p className="text-red-600" >*</p>
-            </label>
-
-            <input
-                type="tel"
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                icon={<FiPhone />}
+                label="Phone Number"
                 name="phone"
+                type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+254..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
-            </div>
+                placeholder="+254700000000"
+                required
+              />
 
-            <div>
-            <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-                Company / Organization <p className="text-red-600" >*</p>
-            </label>
-
-            <input
-                type="text"
+              <Input
+                icon={<FiBriefcase />}
+                label="Company / Organization"
                 name="company"
                 value={formData.company}
                 onChange={handleChange}
-                placeholder="Your Company name"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
+                placeholder="Your company name"
+              />
             </div>
 
-        </div>
+            <div>
+              <label className="flex gap-1 mb-2 text-sm text-gray-300">
+                Project Type
+                <span className="text-red-500">*</span>
+              </label>
 
-        <div>
-          <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-            Project Type
-            <p className="text-red-600">*</p>
-          </label>
-
-            <input
-              type="text"
-              name="projectType"
-              value={formData.projectType}
-              onChange={handleChange}
-              placeholder="type of your project"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
-        </div>
-
-        <div>
-            <label className="flex gap-1 block mb-2 text-sm text-gray-300">
-            Project Description <p className="text-red-600" >*</p>
-            </label>
-
-            <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows="6"
-            placeholder="Tell us about your project goals, requirements, timeline, and any additional information..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none resize-none focus:border-purple-500"
-            />
-        </div>
-
-        <div>
-            <label className="flex gap-1 block mb-4 text-sm text-gray-300">
-            Preferred Contact Method <p className="text-red-600" >*</p>
-            </label>
-
-            <div className="flex flex-col md:flex-row gap-6">
-
-            <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                type="radio"
-                name="preferredContactMethod"
-                value="email"
-                checked={formData.preferredContactMethod === "email"}
+              <select
+                name="projectType"
+                value={formData.projectType}
                 onChange={handleChange}
-                />
-                <span>Email</span>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                type="radio"
-                name="preferredContactMethod"
-                value="phone"
-                checked={formData.preferredContactMethod === "phone"}
-                onChange={handleChange}
-                />
-                <span>Phone Call</span>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                type="radio"
-                name="preferredContactMethod"
-                value="whatsapp"
-                checked={formData.preferredContactMethod === "whatsapp"}
-                onChange={handleChange}
-                />
-                <span>WhatsApp</span>
-            </label>
-
+                className="w-full bg-[#111827] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
+                required
+              >
+                <option value="">Select project type</option>
+                <option value="Strategy Consulting">Strategy Consulting</option>
+                <option value="Leadership Development">Leadership Development</option>
+                <option value="Performance Management">Performance Management</option>
+                <option value="Training and Capacity Building">Training and Capacity Building</option>
+                <option value="Business Advisory">Business Advisory</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
+
+            <div>
+              <label className="flex gap-1 mb-2 text-sm text-gray-300">
+                Project Description
+                <span className="text-red-500">*</span>
+              </label>
+
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="6"
+                maxLength="1000"
+                placeholder="Tell us about your project goals, requirements, timeline, and any additional information..."
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none resize-none focus:border-purple-500"
+                required
+              />
+
+              <p className="text-xs text-gray-500 mt-2">
+                {formData.description.length}/1000 characters
+              </p>
+            </div>
+
+            <div>
+              <label className="flex gap-1 mb-4 text-sm text-gray-300">
+                Preferred Contact Method
+                <span className="text-red-500">*</span>
+              </label>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <RadioOption
+                  label="Email"
+                  value="email"
+                  checked={formData.preferredContactMethod === "email"}
+                  onChange={handleChange}
+                />
+
+                <RadioOption
+                  label="Phone Call"
+                  value="phone"
+                  checked={formData.preferredContactMethod === "phone"}
+                  onChange={handleChange}
+                />
+
+                <RadioOption
+                  label="WhatsApp"
+                  value="whatsapp"
+                  checked={formData.preferredContactMethod === "whatsapp"}
+                  onChange={handleChange}
+                />
+
+                <RadioOption
+                  label="Any"
+                  value="any"
+                  checked={formData.preferredContactMethod === "any"}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            {message && (
+              <div
+                className={`rounded-2xl border px-4 py-4 flex items-start gap-3 ${
+                  messageType === "success"
+                    ? "border-green-500/20 bg-green-500/10 text-green-300"
+                    : "border-red-500/20 bg-red-500/10 text-red-300"
+                }`}
+              >
+                {messageType === "success" ? (
+                  <FiCheckCircle className="mt-1 shrink-0" />
+                ) : (
+                  <FiAlertTriangle className="mt-1 shrink-0" />
+                )}
+
+                <p className="text-sm font-medium">
+                  {message}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 transition-all duration-300 font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <FiSend />
+              {loading ? "Submitting..." : "Request Consultation"}
+            </button>
+          </form>
         </div>
-        {message && (
-          <p className={`text-center font-medium ${messageColor}`}>
-            {message}
-          </p>
-        )}
-        <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-500 transition-all duration-300 font-semibold cursor-pointer"
-        >
-            {loading ? "Submitting..." : "Request Consultation"} 
-        </button>
-
-        </form>
-
-        </div>
-
       </section>
-
     </div>
+  );
+};
+
+const InfoCard = ({ title, text }) => {
+  return (
+    <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-6">
+      <h3 className="text-xl font-semibold mb-2">
+        {title}
+      </h3>
+
+      <p className="text-gray-400">
+        {text}
+      </p>
+    </div>
+  );
+};
+
+const Input = ({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+}) => {
+  return (
+    <div>
+      <label className="flex gap-1 mb-2 text-sm text-gray-300">
+        {label}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400">
+          {icon}
+        </span>
+
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 outline-none focus:border-purple-500"
+          required={required}
+        />
+      </div>
+    </div>
+  );
+};
+
+const RadioOption = ({ label, value, checked, onChange }) => {
+  return (
+    <label
+      className={`cursor-pointer rounded-xl border px-4 py-3 transition-all ${
+        checked
+          ? "border-purple-500/50 bg-purple-500/15 text-white"
+          : "border-white/10 bg-white/5 text-gray-300 hover:border-purple-500/30"
+      }`}
+    >
+      <input
+        type="radio"
+        name="preferredContactMethod"
+        value={value}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+      />
+
+      <span>{label}</span>
+    </label>
   );
 };
 
