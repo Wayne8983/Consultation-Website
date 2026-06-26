@@ -169,7 +169,7 @@ const handleSubmit = async (e) => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="name"
+                placeholder="FirstName SecondName"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
             </div>
@@ -218,7 +218,7 @@ const handleSubmit = async (e) => {
                 name="company"
                 value={formData.company}
                 onChange={handleChange}
-                placeholder="Your Company"
+                placeholder="Your Company name"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
             </div>
@@ -236,7 +236,7 @@ const handleSubmit = async (e) => {
               name="projectType"
               value={formData.projectType}
               onChange={handleChange}
-              placeholder="e.g. E-commerce Website, Mobile App, AI Solution..."
+              placeholder="type of your project"
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
             />
         </div>
