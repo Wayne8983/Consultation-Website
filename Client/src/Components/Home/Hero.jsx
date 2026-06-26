@@ -80,10 +80,10 @@ const Hero = () => {
 
             {/* Buttons */}
             <div className="mt-8 flex flex-wrap gap-4">
-              <a to='/consultation' className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
+              <Link to='/consultation' className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
               >
                 Book Consultation
-              </a>
+              </Link>
 
               <Link to='/services' className="px-6 py-3 border border-slate-300 rounded-lg hover:border-slate-900 transition"
                   data-aos="fade-right"
