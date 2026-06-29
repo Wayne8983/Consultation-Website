@@ -1,4 +1,5 @@
 const Contact = require("../../Models/ContactMessage/ContactMessage");
+const {sendContactMessageReceivedEmail} = require("../../Services/mailService");
 
 const contactMessage = async(req,res) =>{
     try{
@@ -13,6 +14,12 @@ const contactMessage = async(req,res) =>{
             name,
             email,
             message
+        });
+
+
+        await sendContactMessageReceivedEmail({
+        to: email,
+        name,
         });
 
         return res.status(201).json({

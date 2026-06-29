@@ -4,6 +4,7 @@ import ProtectedRoute from "../Auth/ProtectedRoute";
 
 import Home from "../Pages/Home";
 import About from "../Pages/About";
+import AdminBlogs from "../Pages/AdminDashboard/AdminBlogs";
 import Services from "../Pages/Services";
 import Contact from "../Pages/Contact";
 import Blog from "../Pages/blog";
@@ -220,6 +221,14 @@ const AppRoutes = () => {
                     <AdminSettings />
                 </ProtectedRoute>
             }
+        />
+        <Route
+        path="/admin/blogs"
+        element={
+            <ProtectedRoute role="admin">
+                <AdminBlogs />
+            </ProtectedRoute>
+        }
         />
 
         </Route>

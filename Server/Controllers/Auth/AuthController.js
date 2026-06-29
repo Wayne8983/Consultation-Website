@@ -15,7 +15,7 @@ try {
         }
         
         //Lets check in the admins model first
-        const admin = await Admin.findOne({email});
+        const admin = await Admin.findOne({ email });
         if(admin){
 
             //Check if password is correct
@@ -52,7 +52,7 @@ try {
         }
 
         //if not we check the clients model
-        const client = await Client.findOne({email});
+        const client = await Client.findOne({ email });
         if(client){
 
             //Lets confirm the password

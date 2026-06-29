@@ -1,6 +1,7 @@
 const Meeting = require("../../Models/Meetings/Meeting.model");
 const Client = require("../../Models/Clients/Client.model");
 const mongoose = require("mongoose");
+const {sendMeetingCreatedEmail} = require("../../Services/mailService");
 
 const createMeeting = async (req, res) => {
     try {
@@ -76,6 +77,17 @@ const createMeeting = async (req, res) => {
         const meeting = await Meeting.findById(createdMeeting.id)
         .populate("client","name email")
         .populate("createdBy","name email")
+
+
+
+        await sendMeetingCreatedEmail({
+            to: client.email,
+            name: client.name,
+            title,
+            description,
+            meetingDate: meetingDateObj,
+            venue,
+        });
 
         return res.status(201).json({
             success: true,

@@ -28,6 +28,7 @@ const bookConsultation = async(req,res)=>{
             preferredContactMethod
         });
 
+
         return res.status(201).json({
             success:true,
             message:"Consultation request Sent!"

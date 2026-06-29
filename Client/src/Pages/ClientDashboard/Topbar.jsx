@@ -1,248 +1,166 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  FiBell,
+  FiCalendar,
+  FiChevronDown,
+  FiCreditCard,
+  FiFileText,
+  FiFolder,
   FiMenu,
   FiSearch,
+  FiUser,
 } from "react-icons/fi";
+import { getUser } from "../../Utils/auth";
+
+const searchItems = [
+  { label: "Dashboard", path: "/client/dashboard", icon: <FiUser /> },
+  { label: "Projects", path: "/client/project", icon: <FiFolder /> },
+  { label: "Payments", path: "/client/payments", icon: <FiCreditCard /> },
+  { label: "Documents", path: "/client/documents", icon: <FiFileText /> },
+  { label: "Meetings", path: "/client/meetings", icon: <FiCalendar /> },
+  { label: "Profile", path: "/client/profile", icon: <FiUser /> },
+];
 
 const Topbar = ({ setMobileOpen }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const notificationRef = useRef(null);
+  const navigate = useNavigate();
+  const searchRef = useRef(null);
 
-  //------------------This is to disappear the notifications bar on clicks-------------------
+  const [client] = useState(() => getUser());
+  const [showSearch, setShowSearch] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const displayName = client?.name || "Client";
+  const displayEmail = client?.email || "Active Workspace";
+  const initial = displayName.trim().charAt(0).toUpperCase() || "C";
+
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (
-      notificationRef.current &&
-      !notificationRef.current.contains(event.target)
-    ) {
-      setShowNotifications(false);
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearch(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const results = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    if (!term) return searchItems;
+
+    return searchItems.filter((item) =>
+      item.label.toLowerCase().includes(term)
+    );
+  }, [search]);
+
+  const goToResult = (item) => {
+    navigate(item.path);
+    setSearch("");
+    setShowSearch(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (results[0]) {
+      goToResult(results[0]);
     }
   };
 
-  document.addEventListener("mousedown", handleClickOutside);
-
-  return () => {
-    document.removeEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-  };
-}, []);
-
   return (
-      <header
-      className="
-        relative
-        z-50
-        h-20
-        border-b border-white/5
-        bg-[#0B1020]/80
-        backdrop-blur-xl
-        px-4 md:px-8
-        flex
-        items-center
-        justify-between
-      "
-      >
-      {/* Left */}
-      <div className="flex items-center gap-4">
-
-        {/* Mobile Menu */}
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="
-            md:hidden
-            w-10 h-10
-            rounded-xl
-            bg-white/5
-            border border-white/10
-            flex
-            items-center
-            justify-center
-            text-white
-          "
-        >
-          <FiMenu size={20} />
-        </button>
-
-        <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-white">
-            Dashboard
-          </h1>
-
-          <p className="hidden sm:block text-sm text-gray-400">
-            Welcome back. Track your project here.
-          </p>
-        </div>
-
-      </div>
-
-      {/* Right */}
-      <div className="flex items-center gap-3">
-
-        {/* Search */}
-        <div
-          className="
-            hidden lg:flex
-            items-center
-            gap-2
-            w-72
-            px-4 py-2.5
-            rounded-xl
-            bg-white/5
-            border border-white/5
-          "
-        >
-          <FiSearch className="text-gray-500" />
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="
-              w-full
-              bg-transparent
-              outline-none
-              text-sm
-              text-white
-              placeholder:text-gray-500
-            "
-          />
-        </div>
-
-        {/* Notifications */}
-        <div className="relative  ">
-
+    <header className="relative z-50 h-20 border-b border-red-900/20 bg-black/40 px-4 shadow-[0_10px_35px_rgba(220,38,38,.04)] backdrop-blur-2xl md:px-8">
+      <div className="flex h-full items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
           <button
-            onClick={() =>
-              setShowNotifications(!showNotifications)
-            }
-            ref={notificationRef}
-            className="
-              relative
-              w-11 h-11
-              rounded-xl
-              bg-white/5
-              border border-white/5
-              hover:bg-white/10
-              transition
-              flex
-              items-center
-              justify-center
-              text-white
-              cursor-pointer
-            "
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-red-500/20 bg-white/5 text-white transition-all hover:bg-red-600/10 md:hidden"
+            aria-label="Open menu"
           >
-            <FiBell size={18} />
-
-            <span
-              className="
-                absolute
-                top-2
-                right-2
-                h-2
-                w-2
-                rounded-full
-                bg-purple-500
-              "
-            />
+            <FiMenu size={20} />
           </button>
 
-          {showNotifications && (
-            <div
-              className="
-                absolute
-                right-0
-                mt-3
-                w-80
-                rounded-2xl
-                border border-white/10
-                bg-[#111827]
-                shadow-2xl
-                overflow-hidden
-                z-[9999]
-              "
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-red-400">
+              Client Workspace
+            </p>
+
+            <h1 className="truncate text-xl font-semibold text-white md:text-2xl">
+              Client Dashboard
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex min-w-0 items-center gap-3">
+          <div ref={searchRef} className="relative hidden lg:block">
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-80 items-center gap-3 rounded-2xl border border-red-900/20 bg-white/[0.04] px-4 py-3 transition-all focus-within:border-red-500/30 focus-within:bg-red-600/[0.04]"
             >
-              <div className="p-4 border-b border-white/10 ">
-                <h3 className="text-white font-semibold">
-                  Notifications
-                </h3>
+              <FiSearch className="shrink-0 text-red-400" />
+
+              <input
+                type="text"
+                value={search}
+                onFocus={() => setShowSearch(true)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setShowSearch(true);
+                }}
+                placeholder="Search workspace..."
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+              />
+            </form>
+
+            {showSearch && (
+              <div className="absolute right-0 top-full mt-3 w-80 overflow-hidden rounded-3xl border border-red-900/20 bg-[#080808] shadow-[0_0_45px_rgba(220,38,38,.12)]">
+                <div className="space-y-2 p-3">
+                  {results.length === 0 ? (
+                    <p className="px-3 py-4 text-sm text-gray-500">
+                      No matching page found.
+                    </p>
+                  ) : (
+                    results.map((item) => (
+                      <button
+                        key={item.path}
+                        type="button"
+                        onClick={() => goToResult(item)}
+                        className="flex w-full items-center gap-3 rounded-2xl p-3 text-left text-gray-300 transition-all hover:bg-red-600/10 hover:text-white"
+                      >
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-600/10 text-red-400">
+                          {item.icon}
+                        </span>
+
+                        <span className="text-sm font-medium">
+                          {item.label}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
               </div>
+            )}
+          </div>
 
-              <div className="p-4 space-y-3">
-
-                <div className="p-3 rounded-xl bg-white/5">
-                  <p className="text-white text-sm">
-                    Milestone Completed
-                  </p>
-
-                  <p className="text-xs text-slate-400 mt-1">
-                    UI Design Phase has been completed.
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5">
-                  <p className="text-white text-sm">
-                    Meeting Scheduled
-                  </p>
-
-                  <p className="text-xs text-slate-400 mt-1">
-                    Consultation tomorrow at 2:00 PM.
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5">
-                  <p className="text-white text-sm">
-                    Document Uploaded
-                  </p>
-
-                  <p className="text-xs text-slate-400 mt-1">
-                    New contract is available.
-                  </p>
-                </div>
-
-              </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-red-900/20 bg-white/[0.04] px-3 py-2 transition-all hover:border-red-500/30">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-red-500/25 bg-red-600/15 text-sm font-bold text-red-300 shadow-[0_0_18px_rgba(239,68,68,.12)]">
+              {initial}
             </div>
-          )}
 
-        </div>
+            <div className="hidden min-w-0 md:block">
+              <p className="max-w-36 truncate text-sm font-medium text-white">
+                {displayName}
+              </p>
 
-        {/* Profile */}
-        <div
-          className="
-            flex items-center gap-3
-            px-3 py-2
-            rounded-xl
-            bg-white/5
-            border border-white/5
-          "
-        >
-          <div
-            className="
-              w-10 h-10
-              rounded-full
-              bg-gradient-to-br
-              from-purple-500
-              to-violet-700
-              flex items-center justify-center
-              text-white font-bold
-            "
-          >
-            W
+              <p className="max-w-40 truncate text-xs text-gray-500">
+                {displayEmail}
+              </p>
+            </div>
+
+            <FiChevronDown className="hidden text-gray-500 md:block" />
           </div>
-
-          <div className="hidden md:block">
-            <p className="text-sm font-medium text-white">
-              Client
-            </p>
-
-            <p className="text-xs text-gray-400">
-              Active Project
-            </p>
-          </div>
-
         </div>
-
       </div>
     </header>
   );

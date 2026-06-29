@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
-  FiHome,
-  FiFolder,
+  FiCalendar,
+  FiChevronLeft,
   FiCreditCard,
   FiFileText,
-  FiCalendar,
-  FiUser,
+  FiFolder,
+  FiHome,
   FiLogOut,
   FiMenu,
-  FiChevronLeft,
+  FiUser,
   FiX,
 } from "react-icons/fi";
+import Logo from "../../assets/companyLogo.png";
+import { logout } from "../../Utils/auth";
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
 
   const links = [
     {
@@ -49,38 +52,34 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+
+    localStorage.clear("token");
+  };
+
   return (
     <>
-      {/* Mobile Overlay */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="
-            fixed
-            inset-0
-            bg-black/60
-            backdrop-blur-sm
-            z-40
-            md:hidden
-          "
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm md:hidden"
         />
       )}
 
       <aside
         className={`
           fixed md:relative
-          top-0 left-0
-          z-50
-          h-full
-          flex flex-col
-          bg-[#0D1324]
-          border-r border-white/5
+          left-0 top-0 z-50
+          flex h-full flex-col
+          overflow-hidden
+          border-r border-red-900/20
+          bg-black/70
+          shadow-[0_0_40px_rgba(220,38,38,.08)]
+          backdrop-blur-2xl
           transition-all duration-300
-          ${
-            collapsed
-              ? "md:w-20"
-              : "md:w-64"
-          }
+          ${collapsed ? "md:w-24" : "md:w-72"}
           w-72
           ${
             mobileOpen
@@ -89,67 +88,91 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           }
         `}
       >
-        {/* Header */}
-        <div className="p-4 border-b border-white/5 flex items-center justify-between">
+        <div className="border-b border-red-900/20 px-6 py-8">
+          <div className="flex items-center justify-between">
+            {!collapsed || mobileOpen ? (
+              <div className="flex items-center gap-4">
+                <div
+                  className="
+                    flex h-16 w-16 items-center justify-center
+                    rounded-2xl
+                    border border-red-500/20
+                    bg-white/5
+                    shadow-[0_0_25px_rgba(239,68,68,.15)]
+                    backdrop-blur-xl
+                  "
+                >
+                  <img
+                    src={Logo}
+                    alt="Company Logo"
+                    className="h-11 w-11 object-contain"
+                  />
+                </div>
 
-          {(!collapsed || mobileOpen) && (
-            <div>
-              <h2 className="text-white font-semibold text-sm">
-                Strategy
-              </h2>
+                <div>
+                  <h2 className="text-xl font-bold tracking-wide text-white">
+                    Strategy
+                  </h2>
 
-              <p className="text-xs text-slate-400">
-                Client Portal
-              </p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-red-400">
+                    Client Portal
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="
+                  mx-auto flex h-14 w-14 items-center justify-center
+                  rounded-2xl
+                  border border-red-500/20
+                  bg-white/5
+                  shadow-[0_0_20px_rgba(239,68,68,.15)]
+                "
+              >
+                <img
+                  src={Logo}
+                  alt="Company Logo"
+                  className="h-9 w-9 object-contain"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="
+                  hidden h-10 w-10 items-center justify-center
+                  rounded-xl
+                  border border-white/10
+                  bg-white/5
+                  text-gray-300
+                  transition-all
+                  hover:border-red-500/30
+                  hover:bg-red-600/10
+                  hover:text-white
+                  md:flex
+                "
+              >
+                {collapsed ? <FiMenu /> : <FiChevronLeft />}
+              </button>
+
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="
+                  flex h-10 w-10 items-center justify-center
+                  rounded-xl
+                  bg-white/5
+                  text-white
+                  md:hidden
+                "
+              >
+                <FiX />
+              </button>
             </div>
-          )}
-
-          <div className="flex items-center gap-2">
-
-            {/* Desktop Collapse */}
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="
-                hidden md:flex
-                p-2
-                rounded-lg
-                text-slate-400
-                hover:bg-white/5
-                hover:text-white
-                transition
-                cursor-pointer
-              "
-            >
-              {collapsed ? (
-                <FiMenu size={18} />
-              ) : (
-                <FiChevronLeft size={18} />
-              )}
-            </button>
-
-            {/* Mobile Close */}
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="
-                md:hidden
-                p-2
-                rounded-lg
-                text-slate-400
-                hover:bg-white/5
-                hover:text-white
-                transition
-              "
-            >
-              <FiX size={20} />
-            </button>
-
           </div>
-
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
-
+        <nav className="flex-1 space-y-3 overflow-y-auto p-4">
           {links.map((link) => (
             <NavLink
               key={link.path}
@@ -157,61 +180,58 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 `
-                  flex items-center
-                  gap-3
-                  px-3 py-3
-                  rounded-xl
+                  relative flex items-center gap-4
+                  rounded-2xl border px-4 py-4
                   transition-all duration-300
                   ${
                     isActive
-                      ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/20"
-                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                      ? "border-red-500/30 bg-red-600/15 text-white shadow-[0_0_20px_rgba(239,68,68,.15)]"
+                      : "border-transparent text-gray-400 hover:border-red-500/20 hover:bg-red-600/10 hover:text-white"
                   }
                 `
               }
             >
-              <span className="shrink-0">
-                {link.icon}
-              </span>
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <div className="absolute bottom-3 left-0 top-3 w-1 rounded-full bg-red-500" />
+                  )}
 
-              {(!collapsed || mobileOpen) && (
-                <span className="text-sm font-medium">
-                  {link.name}
-                </span>
+                  <div className="shrink-0">{link.icon}</div>
+
+                  {(!collapsed || mobileOpen) && (
+                    <span className="font-medium">{link.name}</span>
+                  )}
+                </>
               )}
             </NavLink>
           ))}
-
         </nav>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-white/5">
+        <div className="border-t border-red-900/20 p-4">
+  
 
           <button
+            onClick={handleLogout}
             className="
-              w-full
-              flex items-center
-              gap-3
-              px-3 py-3
-              rounded-xl
+              flex w-full items-center gap-4
+              rounded-2xl
+              border border-red-500/20
+              bg-red-600/10
+              px-4 py-4
               text-red-400
-              hover:bg-red-500/10
-              transition
-              cursor-pointer
+              transition-all duration-300
+              hover:bg-red-600/20
+              hover:text-white
             "
           >
             <FiLogOut size={20} />
 
             {(!collapsed || mobileOpen) && (
-              <span className="text-sm font-medium">
-                Logout
-              </span>
+              <span className="font-medium">Logout</span>
             )}
-
           </button>
-
         </div>
-
       </aside>
     </>
   );

@@ -2,9 +2,12 @@ const Consultations =require('../../Models/Consultations/Consultation.model');
 const Client = require('../../Models/Clients/Client.model');
 const generateStrongPassword = require('../../Services/generateRandomPassword');
 const { HashPassword } = require('../../Utils/HashPassword');
-const  sendEmail  = require('../../Services/mailService');
 const mongoose = require("mongoose");
 const Project = require('../../Models/Projects/projectsModel');
+const {
+  sendConsultationApprovedEmail,
+  sendConsultationRejectedEmail,
+} = require("../../Services/mailService");
 
 const getAllConsultations = async(req,res)=>{
     try {
@@ -112,17 +115,12 @@ const approveConsultation = async(req,res)=>{
             })
 
             //send email for acc creation
-            await sendEmail({
-                to:consultation.email,
-                subject:'Your Account Login Details',
-                text:'Your Consultation request has been reviewed and approved login to continue',
-                html: `
-                        <h2>Account Created</h2>
-                        <p><b>Email:</b> ${consultation.email}</p>
-                        <p><b>Password:</b> ${password}</p>
-                        <p>Please log in and change your password immediately.</p>
-                    `,
-            });
+        await sendConsultationApprovedEmail({
+            to: consultation.email,
+            name: consultation.name,
+            email: consultation.email,
+            temporaryPassword: password,
+        });
 
             //save approved
             consultation.status='Approved';
@@ -231,21 +229,11 @@ const rejected = async(req,res)=>{
         consultation.status ='Rejected'
         await consultation.save();
 
-        sendEmail({
-            to: consultation.email,
-            subject: "Consultation Request Rejected",
-            text: "Your consultation request was rejected. Please contact the organisation for more information.",
-            html: `
-                <p><b>Email:</b> ${consultation.email}</p>
-                <p>Please contact the organisation for more information.</p>
-            `,
-            })
-            .then(() => {
-                console.log(`Rejection email sent to ${consultation.email}`);
-            })
-            .catch((err) => {
-                console.error("Failed to send rejection email:", err);
-            });
+
+        await sendConsultationRejectedEmail({
+        to: consultation.email,
+        name: consultation.name,
+        });
         
         
         return res.status(200).json({

@@ -201,7 +201,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-5 capitalize">
             <ReadOnlyField
               label="Full Name"
               value={profile?.name || "Not available"}
