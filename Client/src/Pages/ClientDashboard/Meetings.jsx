@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FiAlertTriangle,
   FiCalendar,
   FiCheckCircle,
   FiClock,
   FiMapPin,
+  FiRefreshCw,
   FiUser,
   FiXCircle,
 } from "react-icons/fi";
@@ -72,42 +73,56 @@ const getStatusIcon = (status) => {
 const Meetings = () => {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [pageError, setPageError] = useState("");
 
+const fetchMeetings = useCallback(async () => {
+  try {
+    const res = await api.get("/client/allMeetings");
+    const data = res.data?.meetings;
+
+    if (Array.isArray(data)) {
+      setMeetings(data);
+      setPageError("");
+    } else {
+      setMeetings([]);
+      setPageError("Backend response did not include a meetings array.");
+    }
+  } catch (err) {
+    console.log(err);
+    setMeetings([]);
+    setPageError(getErrorMessage(err));
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
   useEffect(() => {
-    let cancelled = false;
+    let ignore = false;
 
-    api
-      .get("/client/allMeetings")
-      .then((res) => {
-        if (cancelled) return;
+    const loadMeetings = async () => {
+      if (ignore) return;
+      await fetchMeetings();
+    };
 
-        const data = res.data?.meetings;
+    loadMeetings();
 
-        if (Array.isArray(data)) {
-          setMeetings(data);
-        } else {
-          setMeetings([]);
-          setPageError("Backend response did not include a meetings array.");
-        }
-      })
-      .catch((err) => {
-        if (cancelled) return;
+    const refreshInterval = setInterval(() => {
+      fetchMeetings();
+    }, 10000);
 
-        console.log(err);
-        setMeetings([]);
-        setPageError(getErrorMessage(err));
-      })
-      .finally(() => {
-        if (cancelled) return;
+    const refreshOnFocus = () => {
+      fetchMeetings();
+    };
 
-        setLoading(false);
-      });
+    window.addEventListener("focus", refreshOnFocus);
 
     return () => {
-      cancelled = true;
+      ignore = true;
+      clearInterval(refreshInterval);
+      window.removeEventListener("focus", refreshOnFocus);
     };
-  }, []);
+  }, [fetchMeetings]);
 
   const meetingData = useMemo(() => {
     const scheduled = meetings.filter(
@@ -147,18 +162,33 @@ const Meetings = () => {
       <section className="relative overflow-hidden rounded-[28px] border border-red-900/20 bg-black/40 backdrop-blur-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(220,38,38,.08)]">
         <div className="absolute -top-28 -right-20 h-72 w-72 rounded-full bg-red-700/10 blur-[100px]" />
 
-        <div className="relative">
-          <p className="text-red-400 text-xs uppercase tracking-[0.35em] mb-3">
-            Meeting Schedule
-          </p>
+        <div className="relative flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-red-400 text-xs uppercase tracking-[0.35em] mb-3">
+              Meeting Schedule
+            </p>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Meetings
-          </h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white">
+              Meetings
+            </h1>
 
-          <p className="text-gray-400 mt-3 max-w-2xl">
-            View scheduled consultations, meeting details and past meeting history.
-          </p>
+            <p className="text-gray-400 mt-3 max-w-2xl">
+              View scheduled consultations, meeting details and past meeting history.
+            </p>
+          </div>
+
+          <button
+            onClick={async () => {
+              setRefreshing(true);
+              await fetchMeetings();
+              setRefreshing(false);
+            }}
+            disabled={refreshing}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+          >
+            <FiRefreshCw className={refreshing ? "animate-spin" : ""} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
       </section>
 
@@ -179,29 +209,10 @@ const Meetings = () => {
       )}
 
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <StatCard
-          label="Total Meetings"
-          value={meetings.length}
-          icon={<FiCalendar />}
-        />
-
-        <StatCard
-          label="Scheduled"
-          value={meetingData.scheduled.length}
-          icon={<FiClock />}
-        />
-
-        <StatCard
-          label="Completed"
-          value={meetingData.completed.length}
-          icon={<FiCheckCircle />}
-        />
-
-        <StatCard
-          label="Cancelled"
-          value={meetingData.cancelled.length}
-          icon={<FiXCircle />}
-        />
+        <StatCard label="Total Meetings" value={meetings.length} icon={<FiCalendar />} />
+        <StatCard label="Scheduled" value={meetingData.scheduled.length} icon={<FiClock />} />
+        <StatCard label="Completed" value={meetingData.completed.length} icon={<FiCheckCircle />} />
+        <StatCard label="Cancelled" value={meetingData.cancelled.length} icon={<FiXCircle />} />
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -266,23 +277,9 @@ const Meetings = () => {
               </p>
 
               <div className="space-y-3 mt-5">
-                <DetailLine
-                  icon={<FiCalendar />}
-                  label="Date"
-                  value={formatDate(meetingData.nextMeeting.meetingDate)}
-                />
-
-                <DetailLine
-                  icon={<FiClock />}
-                  label="Time"
-                  value={formatTime(meetingData.nextMeeting.meetingDate)}
-                />
-
-                <DetailLine
-                  icon={<FiMapPin />}
-                  label="Venue"
-                  value={meetingData.nextMeeting.venue || "No venue provided"}
-                />
+                <DetailLine icon={<FiCalendar />} label="Date" value={formatDate(meetingData.nextMeeting.meetingDate)} />
+                <DetailLine icon={<FiClock />} label="Time" value={formatTime(meetingData.nextMeeting.meetingDate)} />
+                <DetailLine icon={<FiMapPin />} label="Venue" value={meetingData.nextMeeting.venue || "No venue provided"} />
               </div>
             </div>
           ) : (
@@ -353,32 +350,16 @@ const MeetingCard = ({ meeting }) => {
           </div>
         </div>
 
-        <span
-          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${getStatusStyles(meeting.status)}`}
-        >
+        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${getStatusStyles(meeting.status)}`}>
           {getStatusIcon(meeting.status)}
           {meeting.status}
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
-        <InfoBlock
-          label="Date"
-          value={formatDate(meeting.meetingDate)}
-          icon={<FiCalendar />}
-        />
-
-        <InfoBlock
-          label="Time"
-          value={formatTime(meeting.meetingDate)}
-          icon={<FiClock />}
-        />
-
-        <InfoBlock
-          label="Venue"
-          value={meeting.venue || "No venue provided"}
-          icon={<FiMapPin />}
-        />
+        <InfoBlock label="Date" value={formatDate(meeting.meetingDate)} icon={<FiCalendar />} />
+        <InfoBlock label="Time" value={formatTime(meeting.meetingDate)} icon={<FiClock />} />
+        <InfoBlock label="Venue" value={meeting.venue || "No venue provided"} icon={<FiMapPin />} />
       </div>
     </div>
   );

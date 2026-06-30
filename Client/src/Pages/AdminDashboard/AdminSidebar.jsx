@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
@@ -16,9 +16,12 @@ import {
   FiEdit3,
 } from "react-icons/fi";
 import Logo from "../../assets/companyLogo.png";
+import { logout } from "../../Utils/auth";
 
 const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const navigate = useNavigate();
 
   const links = [
     {
@@ -68,6 +71,20 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
     },
   ];
 
+const handleLogout = async () => {
+  if (loggingOut) return;
+
+  setLoggingOut(true);
+  await logout();
+
+  navigate("/login", {
+    replace: true,
+    state: {
+      message: "Logout successful.",
+    },
+  });
+};
+
   return (
     <>
       {mobileOpen && (
@@ -103,16 +120,7 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
           <div className="flex items-center justify-between">
             {!collapsed || mobileOpen ? (
               <div className="flex items-center gap-4">
-                <div
-                  className="
-                    h-16 w-16 rounded-2xl
-                    bg-white/5
-                    border border-red-500/20
-                    backdrop-blur-xl
-                    flex items-center justify-center
-                    shadow-[0_0_25px_rgba(239,68,68,.15)]
-                  "
-                >
+                <div className="h-16 w-16 rounded-2xl bg-white/5 border border-red-500/20 backdrop-blur-xl flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,.15)]">
                   <img
                     src={Logo}
                     alt="Company Logo"
@@ -131,15 +139,7 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
                 </div>
               </div>
             ) : (
-              <div
-                className="
-                  h-14 w-14 mx-auto rounded-2xl
-                  bg-white/5
-                  border border-red-500/20
-                  flex items-center justify-center
-                  shadow-[0_0_20px_rgba(239,68,68,.15)]
-                "
-              >
+              <div className="h-14 w-14 mx-auto rounded-2xl bg-white/5 border border-red-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,.15)]">
                 <img
                   src={Logo}
                   alt="Company Logo"
@@ -151,29 +151,14 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
             <div className="flex gap-2">
               <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="
-                  hidden md:flex h-10 w-10 rounded-xl
-                  items-center justify-center
-                  bg-white/5
-                  border border-white/10
-                  text-gray-300
-                  hover:bg-red-600/10
-                  hover:border-red-500/30
-                  hover:text-white
-                  transition-all
-                "
+                className="hidden md:flex h-10 w-10 rounded-xl items-center justify-center bg-white/5 border border-white/10 text-gray-300 hover:bg-red-600/10 hover:border-red-500/30 hover:text-white transition-all"
               >
                 {collapsed ? <FiMenu /> : <FiChevronLeft />}
               </button>
 
               <button
                 onClick={() => setMobileOpen(false)}
-                className="
-                  md:hidden h-10 w-10 rounded-xl
-                  bg-white/5
-                  flex items-center justify-center
-                  text-white
-                "
+                className="md:hidden h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white"
               >
                 <FiX />
               </button>
@@ -220,25 +205,19 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
         </nav>
 
         <div className="p-4 border-t border-red-900/20">
-          <button
-            className="
-              w-full flex items-center gap-4
-              px-4 py-4
-              rounded-2xl
-              bg-red-600/10
-              border border-red-500/20
-              text-red-400
-              hover:bg-red-600/20
-              hover:text-white
-              transition-all duration-300
-            "
+        <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl bg-red-600/10 border border-red-500/20 text-red-400 hover:bg-red-600/20 hover:text-white transition-all duration-300 disabled:opacity-60"
           >
-            <FiLogOut size={20} />
+              <FiLogOut size={20} />
 
             {(!collapsed || mobileOpen) && (
-              <span className="font-medium">Logout</span>
+              <span className="font-medium">
+                {loggingOut ? "Logging out..." : "Logout"}
+              </span>
             )}
-          </button>
+        </button>
         </div>
       </aside>
     </>

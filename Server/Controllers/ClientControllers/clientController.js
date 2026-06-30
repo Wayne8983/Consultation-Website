@@ -154,7 +154,7 @@ const changePassword = async(req,res)=>{
             });
         }
 
-        const user = await Client.findById(id) || await Admin.findById(id);
+        const user = await Client.findById(id)
         if(!user){
             return res.status(404).json({
                 success:false,

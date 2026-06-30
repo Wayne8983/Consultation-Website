@@ -8,7 +8,6 @@ import AdminBlogs from "../Pages/AdminDashboard/AdminBlogs";
 import Services from "../Pages/Services";
 import Contact from "../Pages/Contact";
 import Blog from "../Pages/blog";
-import CaseStudies from "../Pages/CaseStudies";
 import MainLayout from "../Components/Layout/MainLayout";
 import Login from "../Pages/LoginSignupForm/Login";
 import Consultation from "../Pages/Consultation/Consultation";
@@ -65,13 +64,6 @@ const AppRoutes = () => {
                             </MainLayout> 
                         } />
 
-        <Route 
-                path="/case-studies" 
-                element={ 
-                            <MainLayout>
-                                <CaseStudies />
-                            </MainLayout> 
-                        } />
 
         <Route 
         path="/contact" 

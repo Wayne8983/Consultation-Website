@@ -286,6 +286,68 @@ const sendMeetingCreatedEmail = async ({
     }),
   });
 };
+const sendMeetingCancelledEmail = async ({
+  to,
+  name,
+  title,
+  description,
+  meetingDate,
+  venue,
+}) => {
+  return sendEmail({
+    to,
+    subject: "Meeting Cancelled",
+    text: `Hello ${name}, the scheduled meeting "${title}" on ${formatDate(
+      meetingDate
+    )} at ${venue} has been cancelled.`,
+    html: baseTemplate({
+      title: "Meeting Cancelled",
+      previewText: "Your scheduled meeting has been cancelled.",
+      body: `
+        <p style="margin:0 0 12px;color:#db2777;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">
+          Meeting Cancelled
+        </p>
+
+        <h2 style="margin:0;color:#111827;font-size:30px;line-height:1.25;">
+          Hello, ${escapeHtml(name)}
+        </h2>
+
+        <p style="margin:18px 0;color:#4b5563;font-size:16px;line-height:1.8;">
+          Your scheduled meeting has been cancelled.
+        </p>
+
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;">
+          <tr>
+            <td style="padding:22px;">
+              <p style="margin:0 0 12px;color:#111827;font-size:18px;font-weight:700;">
+                ${escapeHtml(title)}
+              </p>
+
+              <p style="margin:0 0 10px;color:#4b5563;font-size:14px;line-height:1.7;">
+                <strong style="color:#111827;">Date:</strong><br />
+                ${escapeHtml(formatDate(meetingDate))}
+              </p>
+
+              <p style="margin:0 0 10px;color:#4b5563;font-size:14px;line-height:1.7;">
+                <strong style="color:#111827;">Venue:</strong><br />
+                ${escapeHtml(venue)}
+              </p>
+
+              ${
+                description
+                  ? `<p style="margin:0;color:#4b5563;font-size:14px;line-height:1.7;">
+                      <strong style="color:#111827;">Description:</strong><br />
+                      ${escapeHtml(description)}
+                    </p>`
+                  : ""
+              }
+            </td>
+          </tr>
+        </table>
+      `,
+    }),
+  });
+};
 
 const sendGeneralNotificationEmail = async ({
   to,
@@ -320,6 +382,7 @@ const sendGeneralNotificationEmail = async ({
 module.exports = {
   sendEmail,
   sendConsultationApprovedEmail,
+  sendMeetingCancelledEmail,
   sendConsultationRejectedEmail,
   sendContactMessageReceivedEmail,
   sendMeetingCreatedEmail,

@@ -35,6 +35,18 @@ const formatDate = (dateValue) => {
   });
 };
 
+const formatActivityDate = (dateValue) => {
+  if (!dateValue) return "No date";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return date.toLocaleString();
+};
+
 const ClientDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -113,6 +125,29 @@ const ClientDashboard = () => {
     };
   }, [projects, meetings]);
 
+  const recentActivities = useMemo(() => {
+    return [
+      ...projects.map((project) => ({
+        id: `project-${project._id}`,
+        title: project.title,
+        detail: `Project is ${project.status || "Active"} at ${project.progress || 0}% progress.`,
+        date: project.updatedAt || project.createdAt,
+        icon: <FiFolder />,
+      })),
+
+      ...meetings.map((meeting) => ({
+        id: `meeting-${meeting._id}`,
+        title: meeting.title,
+        detail: `${meeting.status} meeting on ${formatDate(meeting.meetingDate)}.`,
+        date: meeting.updatedAt || meeting.createdAt,
+        icon: <FiCalendar />,
+      })),
+    ]
+      .filter((activity) => activity.date)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
+  }, [projects, meetings]);
+
   if (loading) return <DashboardSkeleton />;
 
   const stats = [
@@ -140,19 +175,6 @@ const ClientDashboard = () => {
       detail: "Finished projects",
       icon: <FiCheckCircle />,
     },
-  ];
-
-  const recentActivities = [
-    ...projects.slice(0, 2).map((project) => ({
-      title: project.title,
-      detail: `Project is ${project.status || "Active"} at ${project.progress || 0}% progress.`,
-      icon: <FiFolder />,
-    })),
-    ...meetings.slice(0, 2).map((meeting) => ({
-      title: meeting.title,
-      detail: `${meeting.status} meeting on ${formatDate(meeting.meetingDate)}.`,
-      icon: <FiCalendar />,
-    })),
   ];
 
   return (
@@ -348,9 +370,9 @@ const ClientDashboard = () => {
               No recent activity available yet.
             </p>
           ) : (
-            recentActivities.map((item, index) => (
+            recentActivities.map((item) => (
               <div
-                key={`${item.title}-${index}`}
+                key={item.id}
                 className="flex items-start gap-3 rounded-2xl bg-white/[0.04] border border-red-900/20 p-4"
               >
                 <div className="h-10 w-10 shrink-0 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400">
@@ -364,6 +386,10 @@ const ClientDashboard = () => {
 
                   <p className="text-gray-500 text-sm mt-1">
                     {item.detail}
+                  </p>
+
+                  <p className="text-red-300 text-xs mt-2">
+                    {formatActivityDate(item.date)}
                   </p>
                 </div>
               </div>

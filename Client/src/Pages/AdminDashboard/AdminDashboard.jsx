@@ -9,13 +9,29 @@ import {
   FiFolder,
   FiCalendar,
   FiArrowRight,
+  FiFileText,
+  FiActivity,
 } from "react-icons/fi";
 import api from "../../Service/axios";
 import { DashboardSkeleton } from "../Skeleton/Skeleton";
 
+const formatDate = (dateValue) => {
+  if (!dateValue) return "No date";
+  return new Date(dateValue).toLocaleString();
+};
+
+const getActivityIcon = (type) => {
+  if (type === "consultation") return <FiClipboard />;
+  if (type === "client") return <FiUsers />;
+  if (type === "project") return <FiFolder />;
+  if (type === "meeting") return <FiCalendar />;
+  if (type === "document") return <FiFileText />;
+  return <FiActivity />;
+};
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
+  const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,6 +39,7 @@ const AdminDashboard = () => {
       try {
         const response = await api.get("/admin/dashboard");
         setStats(response.data.stats);
+        setRecentActivities(response.data.recentActivities || []);
       } catch (error) {
         console.log(error);
       } finally {
@@ -33,9 +50,9 @@ const AdminDashboard = () => {
     fetchDashboard();
   }, []);
 
-if (loading) {
-  return <DashboardSkeleton />;
-}
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   const dashboardCards = [
     {
@@ -95,18 +112,7 @@ if (loading) {
 
   return (
     <div className="space-y-8">
-      <section
-        className="
-          relative
-          overflow-hidden
-          rounded-[28px]
-          border border-red-900/20
-          bg-black/40
-          backdrop-blur-2xl
-          p-6 md:p-8
-          shadow-[0_0_40px_rgba(220,38,38,.08)]
-        "
-      >
+      <section className="relative overflow-hidden rounded-[28px] border border-red-900/20 bg-black/40 backdrop-blur-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(220,38,38,.08)]">
         <div className="absolute -top-28 -right-20 h-72 w-72 rounded-full bg-red-700/10 blur-[100px]" />
 
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -126,22 +132,7 @@ if (loading) {
 
           <Link
             to="/admin/consultations"
-            className="
-              inline-flex
-              items-center
-              justify-center
-              gap-3
-              rounded-2xl
-              bg-red-600/15
-              border border-red-500/30
-              px-5
-              py-4
-              text-red-300
-              hover:bg-red-600/25
-              hover:text-white
-              transition-all
-              shadow-[0_0_20px_rgba(239,68,68,.12)]
-            "
+            className="inline-flex items-center justify-center gap-3 rounded-2xl bg-red-600/15 border border-red-500/30 px-5 py-4 text-red-300 hover:bg-red-600/25 hover:text-white transition-all shadow-[0_0_20px_rgba(239,68,68,.12)]"
           >
             Review Requests
             <FiArrowRight />
@@ -153,32 +144,10 @@ if (loading) {
         {dashboardCards.map((item) => (
           <div
             key={item.title}
-            className="
-              rounded-2xl
-              border border-red-900/20
-              bg-white/[0.04]
-              backdrop-blur-xl
-              p-5
-              hover:border-red-500/30
-              hover:bg-red-600/[0.06]
-              transition-all
-              shadow-[0_0_25px_rgba(220,38,38,.04)]
-            "
+            className="rounded-2xl border border-red-900/20 bg-white/[0.04] backdrop-blur-xl p-5 hover:border-red-500/30 hover:bg-red-600/[0.06] transition-all shadow-[0_0_25px_rgba(220,38,38,.04)]"
           >
             <div className="flex items-center justify-between">
-              <div
-                className={`
-                  h-12
-                  w-12
-                  rounded-2xl
-                  bg-red-600/10
-                  border border-red-500/20
-                  flex
-                  items-center
-                  justify-center
-                  ${item.color}
-                `}
-              >
+              <div className={`h-12 w-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center ${item.color}`}>
                 {item.icon}
               </div>
 
@@ -199,17 +168,7 @@ if (loading) {
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div
-          className="
-            xl:col-span-2
-            rounded-[28px]
-            border border-red-900/20
-            bg-black/35
-            backdrop-blur-2xl
-            p-6
-            shadow-[0_0_35px_rgba(220,38,38,.06)]
-          "
-        >
+        <div className="xl:col-span-2 rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-6 shadow-[0_0_35px_rgba(220,38,38,.06)]">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-white">
@@ -268,16 +227,7 @@ if (loading) {
           </div>
         </div>
 
-        <div
-          className="
-            rounded-[28px]
-            border border-red-900/20
-            bg-black/35
-            backdrop-blur-2xl
-            p-6
-            shadow-[0_0_35px_rgba(220,38,38,.06)]
-          "
-        >
+        <div className="rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-6 shadow-[0_0_35px_rgba(220,38,38,.06)]">
           <h2 className="text-xl font-semibold text-white mb-2">
             Quick Actions
           </h2>
@@ -291,22 +241,7 @@ if (loading) {
               <Link
                 key={action.path}
                 to={action.path}
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  gap-4
-                  rounded-2xl
-                  border border-white/5
-                  bg-white/[0.04]
-                  px-4
-                  py-4
-                  text-gray-300
-                  hover:bg-red-600/10
-                  hover:border-red-500/25
-                  hover:text-white
-                  transition-all
-                "
+                className="flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-white/[0.04] px-4 py-4 text-gray-300 hover:bg-red-600/10 hover:border-red-500/25 hover:text-white transition-all"
               >
                 <span className="flex items-center gap-3">
                   <span className="text-red-400">
@@ -320,6 +255,45 @@ if (loading) {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-6">
+        <h2 className="text-xl font-semibold text-white mb-6">
+          Recent Activity
+        </h2>
+
+        <div className="space-y-3">
+          {recentActivities.length === 0 ? (
+            <p className="text-gray-400">
+              No recent activity available yet.
+            </p>
+          ) : (
+            recentActivities.map((activity) => (
+              <div
+                key={`${activity.type}-${activity.id}`}
+                className="flex items-start gap-3 rounded-2xl bg-white/[0.04] border border-red-900/20 p-4"
+              >
+                <div className="h-10 w-10 shrink-0 rounded-xl bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                  {getActivityIcon(activity.type)}
+                </div>
+
+                <div>
+                  <p className="text-white text-sm">
+                    {activity.title}
+                  </p>
+
+                  <p className="text-gray-500 text-sm mt-1">
+                    {activity.detail}
+                  </p>
+
+                  <p className="text-red-300 text-xs mt-2">
+                    {formatDate(activity.date)}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>

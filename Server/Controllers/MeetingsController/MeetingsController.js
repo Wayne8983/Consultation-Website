@@ -1,7 +1,9 @@
 const Meeting = require("../../Models/Meetings/Meeting.model");
 const Client = require("../../Models/Clients/Client.model");
 const mongoose = require("mongoose");
-const {sendMeetingCreatedEmail} = require("../../Services/mailService");
+const {
+    sendMeetingCreatedEmail, 
+    sendMeetingCancelledEmail} = require("../../Services/mailService");
 
 const createMeeting = async (req, res) => {
     try {
@@ -181,47 +183,58 @@ const getAdminMeetings = async(req,res)=>{
     }
 }
 
-const cancelMeeting = async(req,res) =>{
-    try{
-        const Id = req.params.id;
-        if(!mongoose.Types.ObjectId.isValid(Id)){
-            return res.status(400).json({
-                success:false,
-                message:"Invalid client id"
-            });
-        }
-        
+const cancelMeeting = async (req, res) => {
+    try {
+        const id = req.params.id;
 
-        const meeting = await Meeting.findById(Id);
-        if(!meeting){
-            return res.status(404).json({
-                success:false,
-                message:"Meeting not found"
-            })
-        }else if(meeting.status ==='Cancelled'){
-            return res.status(400).json({
-                success:false,
-                message:"Meeting has already been cancelled"
-            });
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid meeting id",
+        });
         }
-        meeting.status='Cancelled'
+
+        const meeting = await Meeting.findById(id).populate("client", "name email");
+
+        if (!meeting) {
+        return res.status(404).json({
+            success: false,
+            message: "Meeting not found",
+        });
+        }
+
+        if (meeting.status === "Cancelled") {
+        return res.status(400).json({
+            success: false,
+            message: "Meeting has already been cancelled",
+        });
+        }
+
+        meeting.status = "Cancelled";
         await meeting.save();
 
-        return res.status(200).json({
-            success:true,
-            message:"Meeting has been cancelled successfully"
+        await sendMeetingCancelledEmail({
+            to: meeting.client.email,
+            name: meeting.client.name,
+            title: meeting.title,
+            description: meeting.description,
+            meetingDate: meeting.meetingDate,
+            venue: meeting.venue,
         });
 
+        return res.status(200).json({
+            success: true,
+            message: "Meeting has been cancelled successfully",
+        });
+    } catch (err) {
+        console.log(err);
 
-
-    }catch(err){
-        console.log(err)
         return res.status(500).json({
-            success:false,
-            message:"Internal Server error.Please try again later"
-        })
+            success: false,
+            message: "Internal Server error. Please try again later",
+        });
     }
-}
+};
 
 const completeMeeting = async(req,res)=>{
     try{

@@ -1,6 +1,14 @@
 const express = require("express");
 const Authorize = require("../../Middlewares/Authorize");
 const authenticate = require("../../Middlewares/AuthMiddleware");
+const uploadDocument = require("../../Middlewares/uploadDocument");
+
+const {
+  getAdminDocuments,
+  uploadAdminDocument,
+  deleteAdminDocument,
+} = require("../../Controllers/DocumentsController/DocumentsController");
+
 const {getAllConsultations, 
     approveConsultation, 
     allClients, 
@@ -8,11 +16,12 @@ const {getAllConsultations,
     rejected, 
     pendingConsultations, 
     adminDashboard, 
-    getOneConsultation} = require("../../Controllers/AdminControllers/AdminControllers");
+    getOneConsultation,
+    changeAdminPassword} = require("../../Controllers/AdminControllers/AdminControllers");
 const { 
     createClient, 
-    suspendClient, 
-    changePassword } = require("../../Controllers/ClientControllers/clientController");
+    suspendClient
+     } = require("../../Controllers/ClientControllers/clientController");
 
 const { 
     createMeeting, 
@@ -39,7 +48,7 @@ router.post('/clients', authenticate, Authorize("admin"), createClient);
 router.get('/clients', authenticate, Authorize("admin"), allClients);
 router.get('/clients/:id', authenticate, Authorize("admin"), oneClient);
 router.patch('/clients/:id/suspend', authenticate, Authorize("admin"), suspendClient);
-router.patch('/clients/:id/change-password', authenticate, Authorize("admin"), changePassword);
+router.patch("/change-password",authenticate,Authorize("admin"),changeAdminPassword);
 
 // PROJECTS Routes
 router.post('/clients/:id/projects', authenticate, Authorize("admin"), createProject);
@@ -71,5 +80,22 @@ router.patch('/meetings/:id/cancel', authenticate, Authorize("admin"), cancelMee
 router.patch('/meetings/:id/complete', authenticate, Authorize("admin"), completeMeeting);
 router.patch('/meetings/:id', authenticate, Authorize("admin"), updateMeeting);
 router.delete('/meetings/:id', authenticate, Authorize("admin"), deleteMeeting);
+
+
+// DOCUMENTS
+router.get("/documents", authenticate, Authorize("admin"), getAdminDocuments);
+router.post(
+  "/clients/:id/documents",
+  authenticate,
+  Authorize("admin"),
+  uploadDocument.single("document"),
+  uploadAdminDocument
+);
+router.delete(
+  "/documents/:id",
+  authenticate,
+  Authorize("admin"),
+  deleteAdminDocument
+);
 
 module.exports = router;

@@ -1,3 +1,5 @@
+import api from "../Service/axios";
+
 export const getToken = () => {
   return localStorage.getItem("token");
 };
@@ -15,8 +17,18 @@ export const isAuthenticated = () => {
   return !!localStorage.getItem("token");
 };
 
-export const logout = () => {
+export const clearAuth = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("userType");
   localStorage.removeItem("user");
+};
+
+export const logout = async () => {
+  try {
+    await api.post("/users/logout");
+  } catch (err) {
+    console.log(err);
+  } finally {
+    clearAuth();
+  }
 };

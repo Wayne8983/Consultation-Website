@@ -1,47 +1,49 @@
 require("dotenv").config();
+
 const express = require("express");
-const app = express();
-const connectDB = require('./Config/db');
-const autoCompleteMeetings = require("./Utils/nodeCronJob");
-const ConsulRoutes = require('./Routes/ConsultationRoutes/ConsultationRoutes');
-const authRoutes = require("./Routes/AuthRoutes/AuthRoutes");
-const adminRoutes = require('./Routes/AdminRoutes/AdminRoutes');
-const ClientRoutes = require("./Routes/ClientRoutes/ClientRoutes");
-
-const blogRoutes = require("./Routes/BlogRoutes/BlogRoutes");
-const ContactUs = require('./Routes/ContactRoutes/ContactRoutes');
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const path = require("path");
 
+//DB connection 
+const connectDB = require("./Config/db");
+
+
+
+//Routes
+const ConsulRoutes = require("./Routes/ConsultationRoutes/ConsultationRoutes");
+const authRoutes = require("./Routes/AuthRoutes/AuthRoutes");
+const adminRoutes = require("./Routes/AdminRoutes/AdminRoutes");
+const ClientRoutes = require("./Routes/ClientRoutes/ClientRoutes");
+const blogRoutes = require("./Routes/BlogRoutes/BlogRoutes");
+const ContactUs = require("./Routes/ContactRoutes/ContactRoutes");
+
+const app = express();
 
 connectDB();
-autoCompleteMeetings();
 
-//Middleweares 
+
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
 
-app.use('/api/consultations',ConsulRoutes);
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
-//routes for Admin
-app.use('/admin',adminRoutes);
+app.use("/api/consultations", ConsulRoutes);
+app.use("/admin", adminRoutes);
+app.use("/client", ClientRoutes);
+app.use("/users", authRoutes);
+app.use("/api", ContactUs);
+app.use("/blog", blogRoutes);
+//Here is the documents routes
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-//routes for clients
-app.use('/client',ClientRoutes);
+const port = process.env.PORT || 3000;
 
-//Authentication routes for login 
-app.use('/users',authRoutes);
-
-//Routes for the contact message in the Contact us section
-app.use('/api',ContactUs);
-
-//The routes for the Blogs
-app.use('/blog',blogRoutes);
-
-
-
-
-const port = process.env.PORT || 3000;  
-
-app.listen(port,()=>{
-    console.log(`Server is running on port ${port} `);
-})
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

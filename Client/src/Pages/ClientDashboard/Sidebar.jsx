@@ -17,6 +17,7 @@ import { logout } from "../../Utils/auth";
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const navigate = useNavigate();
 
   const links = [
@@ -52,11 +53,18 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    if (loggingOut) return;
 
-    localStorage.clear("token");
+    setLoggingOut(true);
+    await logout();
+
+    navigate("/login", {
+      replace: true,
+      state: {
+        message: "Logout successful.",
+      },
+    });
   };
 
   return (
@@ -92,16 +100,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           <div className="flex items-center justify-between">
             {!collapsed || mobileOpen ? (
               <div className="flex items-center gap-4">
-                <div
-                  className="
-                    flex h-16 w-16 items-center justify-center
-                    rounded-2xl
-                    border border-red-500/20
-                    bg-white/5
-                    shadow-[0_0_25px_rgba(239,68,68,.15)]
-                    backdrop-blur-xl
-                  "
-                >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-500/20 bg-white/5 shadow-[0_0_25px_rgba(239,68,68,.15)] backdrop-blur-xl">
                   <img
                     src={Logo}
                     alt="Company Logo"
@@ -120,15 +119,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
                 </div>
               </div>
             ) : (
-              <div
-                className="
-                  mx-auto flex h-14 w-14 items-center justify-center
-                  rounded-2xl
-                  border border-red-500/20
-                  bg-white/5
-                  shadow-[0_0_20px_rgba(239,68,68,.15)]
-                "
-              >
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-red-500/20 bg-white/5 shadow-[0_0_20px_rgba(239,68,68,.15)]">
                 <img
                   src={Logo}
                   alt="Company Logo"
@@ -140,31 +131,14 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             <div className="flex gap-2">
               <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="
-                  hidden h-10 w-10 items-center justify-center
-                  rounded-xl
-                  border border-white/10
-                  bg-white/5
-                  text-gray-300
-                  transition-all
-                  hover:border-red-500/30
-                  hover:bg-red-600/10
-                  hover:text-white
-                  md:flex
-                "
+                className="hidden h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition-all hover:border-red-500/30 hover:bg-red-600/10 hover:text-white md:flex"
               >
                 {collapsed ? <FiMenu /> : <FiChevronLeft />}
               </button>
 
               <button
                 onClick={() => setMobileOpen(false)}
-                className="
-                  flex h-10 w-10 items-center justify-center
-                  rounded-xl
-                  bg-white/5
-                  text-white
-                  md:hidden
-                "
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white md:hidden"
               >
                 <FiX />
               </button>
@@ -209,28 +183,19 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         </nav>
 
         <div className="border-t border-red-900/20 p-4">
-  
-
-          <button
+        <button
             onClick={handleLogout}
-            className="
-              flex w-full items-center gap-4
-              rounded-2xl
-              border border-red-500/20
-              bg-red-600/10
-              px-4 py-4
-              text-red-400
-              transition-all duration-300
-              hover:bg-red-600/20
-              hover:text-white
-            "
+            disabled={loggingOut}
+            className="flex w-full items-center gap-4 rounded-2xl border border-red-500/20 bg-red-600/10 px-4 py-4 text-red-400 transition-all duration-300 hover:bg-red-600/20 hover:text-white disabled:opacity-60"
           >
-            <FiLogOut size={20} />
+              <FiLogOut size={20} />
 
             {(!collapsed || mobileOpen) && (
-              <span className="font-medium">Logout</span>
+              <span className="font-medium">
+                {loggingOut ? "Logging out..." : "Logout"}
+              </span>
             )}
-          </button>
+        </button>
         </div>
       </aside>
     </>

@@ -49,7 +49,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState("");
 
-  const [emailNotifications, setEmailNotifications] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordForm, setPasswordForm] = useState(emptyPasswordForm);
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -274,48 +273,7 @@ const Profile = () => {
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-red-900/20 bg-black/35 backdrop-blur-2xl p-6 shadow-[0_0_35px_rgba(220,38,38,.06)]">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-white">
-              Notifications
-            </h2>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Local preference until notification backend is added
-            </p>
-          </div>
-
-          <FiShield className="text-red-400" />
-        </div>
-
-        <div className="rounded-2xl border border-red-900/20 bg-white/[0.04] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-          <div>
-            <p className="text-white font-medium">
-              Email Notifications
-            </p>
-
-            <p className="text-gray-500 text-sm mt-2">
-              Receive updates about milestones, meetings and project activity.
-            </p>
-          </div>
-
-          <button
-            onClick={() =>
-              setEmailNotifications((current) => !current)
-            }
-            className={`relative h-8 w-16 rounded-full transition-all ${
-              emailNotifications ? "bg-red-600" : "bg-gray-700"
-            }`}
-          >
-            <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-all ${
-                emailNotifications ? "right-1" : "left-1"
-              }`}
-            />
-          </button>
-        </div>
-      </section>
 
       {showPasswordModal && (
         <Modal title="Change Password" onClose={closePasswordModal}>
