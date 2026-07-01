@@ -2,25 +2,20 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
+    const mongoUrl = process.env.MONGO_URL || process.env.MONGO_URI;
 
-        const connection = await mongoose.connect(
-        process.env.MONGO_URL
-        );
+    if (!mongoUrl) {
+      throw new Error(
+        "Missing MongoDB connection string. Add MONGO_URL or MONGO_URI to Server/.env"
+      );
+    }
 
-        console.log(
-        `MongoDB Connected: ${connection.connection.host}`
-        );
+    const connection = await mongoose.connect(mongoUrl);
 
-
+    console.log(`MongoDB Connected: ${connection.connection.host}`);
   } catch (error) {
-
-
-    console.error(
-      `MongoDB Connection Error: ${error.message}`
-    );
-
+    console.error(`MongoDB Connection Error: ${error.message}`);
     process.exit(1);
-    
   }
 };
 

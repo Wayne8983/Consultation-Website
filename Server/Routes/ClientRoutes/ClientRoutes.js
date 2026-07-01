@@ -5,7 +5,7 @@ const {
     changePassword, 
     getClientProfile } = require("../../Controllers/ClientControllers/clientController");
 const { getClientMeetings } = require("../../Controllers/MeetingsController/MeetingsController");
-const { getClientProject } = require("../../Controllers/ProjectsControllers/ProjectsControllers");
+const { getClientProject, submitMilestonePayment } = require("../../Controllers/ProjectsControllers/ProjectsControllers");
 const uploadDocument = require("../../Middlewares/uploadDocument");
 
 const {
@@ -13,6 +13,8 @@ const {
   uploadClientDocument,
   deleteClientDocument,
 } = require("../../Controllers/DocumentsController/DocumentsController");
+
+
 
 const router = express.Router();
 
@@ -38,6 +40,13 @@ router.delete(
   authenticate,
   Authorize("client"),
   deleteClientDocument
+);
+
+router.patch(
+  "/projects/:projectId/milestones/:milestoneId/submit-payment",
+  authenticate,
+  Authorize("client"),
+  submitMilestonePayment
 );
 
 

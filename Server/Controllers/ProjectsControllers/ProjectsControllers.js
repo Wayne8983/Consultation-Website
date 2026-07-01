@@ -2,6 +2,28 @@ const mongoose = require("mongoose");
 const Client = require("../../Models/Clients/Client.model");
 const Project = require("../../Models/Projects/projectsModel");
 
+
+const normalizeMilestones = (milestones) => {
+  if (!Array.isArray(milestones)) return [];
+
+  return milestones
+    .map((milestone) => ({
+      title: milestone.title?.trim(),
+      description: milestone.description?.trim() || "",
+      amount: Number(milestone.amount),
+      dueDate: milestone.dueDate,
+      status: milestone.status || "Pending",
+      paymentStatus: milestone.paymentStatus || "Not Paid",
+    }))
+    .filter(
+      (milestone) =>
+        milestone.title &&
+        !Number.isNaN(milestone.amount) &&
+        milestone.amount >= 0 &&
+        milestone.dueDate
+    );
+};
+
 const createProject = async (req, res) => {
     try {
         const id = req.params.id;
@@ -13,14 +35,15 @@ const createProject = async (req, res) => {
                 message: "Invalid client!"
             });
         }
-
         const {
             title,
             description,
             startDate,
             deadline,
-            budget
+            budget,
+            milestones,
         } = req.body;
+ 
 
         // Required fields
         if (!title || !description || !startDate || !deadline) {
@@ -65,6 +88,16 @@ const createProject = async (req, res) => {
             await client.save();
         }
 
+        const normalizedMilestones = normalizeMilestones(milestones);
+
+        if (normalizedMilestones.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one project milestone is required",
+            });
+        }
+
+
         // Create project
         const project = await Project.create({
             client: id,
@@ -73,7 +106,8 @@ const createProject = async (req, res) => {
             startDate: start,
             deadline: end,
             budget,
-            status: "Active"
+            status: "Active",
+            milestones: normalizedMilestones,
         });
         const populatedProject = await Project.findById(project._id)
         .populate("client","name email");
@@ -352,7 +386,150 @@ const cancelProject = async(req,res)=>{
     }
 };
 
+const updateMilestone = async (req, res) => {
+  try {
+    const { projectId, milestoneId } = req.params;
 
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    const milestone = project.milestones.id(milestoneId);
+
+    if (!milestone) {
+      return res.status(404).json({
+        success: false,
+        message: "Milestone not found",
+      });
+    }
+
+    const allowedFields = ["title", "description", "amount", "dueDate", "status"];
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        milestone[field] = req.body[field];
+      }
+    });
+
+    await project.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Milestone updated successfully",
+      project,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const submitMilestonePayment = async (req, res) => {
+  try {
+    const { projectId, milestoneId } = req.params;
+    const clientId = req.user.id;
+    const { paymentReference, paymentNote } = req.body;
+
+    const project = await Project.findOne({
+      _id: projectId,
+      client: clientId,
+    }).populate("client", "name email");
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    const milestone = project.milestones.id(milestoneId);
+
+    if (!milestone) {
+      return res.status(404).json({
+        success: false,
+        message: "Milestone not found",
+      });
+    }
+
+    if (milestone.paymentStatus === "Received") {
+      return res.status(400).json({
+        success: false,
+        message: "This milestone payment has already been confirmed",
+      });
+    }
+
+    milestone.paymentStatus = "Submitted";
+    milestone.paymentReference = paymentReference || "";
+    milestone.paymentNote = paymentNote || "";
+    milestone.paidAt = new Date();
+
+    await project.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment submitted. Admin will confirm receipt.",
+      project,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const confirmMilestonePayment = async (req, res) => {
+  try {
+    const { projectId, milestoneId } = req.params;
+
+    const project = await Project.findById(projectId).populate("client", "name email");
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    const milestone = project.milestones.id(milestoneId);
+
+    if (!milestone) {
+      return res.status(404).json({
+        success: false,
+        message: "Milestone not found",
+      });
+    }
+
+    milestone.paymentStatus = "Received";
+    milestone.paymentConfirmedAt = new Date();
+
+    await project.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Milestone payment marked as received",
+      project,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 
 
@@ -362,8 +539,11 @@ module.exports = {
     ,allAdminProjects
     ,singleProject,
     updateProject,
+    updateMilestone,
     completeProject,
+    submitMilestonePayment,
     deleteProject,
+    confirmMilestonePayment,
     getClientProject,
     oneClientProject,
     cancelProject

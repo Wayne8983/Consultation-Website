@@ -25,7 +25,7 @@ const WhoWeAre = () => {
             <div className="relative h-[500px] rounded-3xl overflow-hidden border border-white/10 bg-white/5">
 
             <img
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                src="https://res.cloudinary.com/pvaabczg/image/upload/v1782896975/IMG-20260626-WA0000_cgxjpc.jpg"
                 alt="Team Collaboration"
                 className="w-full h-full object-cover"
             />

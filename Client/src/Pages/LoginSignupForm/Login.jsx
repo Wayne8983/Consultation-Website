@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import LoginPic from "../../assets/LoginPic.png";
 import CompanyLogo from '../../assets/companyLogo.png'
 import { getToken, getUserType, logout } from "../../Utils/auth";
+import { setAuthSession } from "../../Utils/authSession"
 
 const BackendURL = import.meta.env.VITE_BackendURL;
 
@@ -151,9 +152,11 @@ const Login = () => {
         throw new Error("Invalid login response");
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userType", data.userType);
-      localStorage.setItem("user", JSON.stringify(data.user || {}));
+      setAuthSession({
+        token: data.token,
+        userType: data.userType,
+        user: data.user || {},
+      });
 
       setPopupMessage("Login successful. Redirecting...");
 

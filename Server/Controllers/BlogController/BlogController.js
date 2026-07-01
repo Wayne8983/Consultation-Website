@@ -1,6 +1,23 @@
 const mongoose = require("mongoose");
 const Blog = require("../../Models/Blog/blog.model");
+const { uploadImageBuffer, deleteImage } = require("../../Config/cloudinary");
 
+const normalizeTags = (tags) => {
+  if (!tags) return [];
+
+  if (Array.isArray(tags)) {
+    return tags.map((tag) => tag.trim()).filter(Boolean);
+  }
+
+  if (typeof tags === "string") {
+    return tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
 
 const createBlog = async (req, res) => {
   try {
@@ -10,7 +27,6 @@ const createBlog = async (req, res) => {
       content,
       coverImage,
       category,
-      tags,
       status,
       seoTitle,
       seoDescription,
@@ -23,32 +39,36 @@ const createBlog = async (req, res) => {
       });
     }
 
+    let uploadedImage = null;
+
+    if (req.file) {
+      uploadedImage = await uploadImageBuffer(req.file.buffer, "blogs");
+    }
+
     const blog = await Blog.create({
       title,
       excerpt,
       content,
-      coverImage,
+      coverImage: uploadedImage?.secure_url || coverImage || "",
+      coverImagePublicId: uploadedImage?.public_id || "",
       category,
-      tags,
+      tags: normalizeTags(req.body.tags),
       status,
       seoTitle,
       seoDescription,
       author: req.user.id,
     });
 
-    //This will extend the Author to find the authors details by id
     const populatedBlog = await Blog.findById(blog._id).populate(
       "author",
       "name email"
     );
-
 
     return res.status(201).json({
       success: true,
       message: "Blog created successfully",
       blog: populatedBlog,
     });
-
   } catch (err) {
     if (err.code === 11000) {
       return res.status(409).json({
@@ -165,14 +185,22 @@ const updateBlog = async (req, res) => {
       });
     }
 
+    if (req.file) {
+      if (blog.coverImagePublicId) {
+        await deleteImage(blog.coverImagePublicId);
+      }
+
+      const uploadedImage = await uploadImageBuffer(req.file.buffer, "blogs");
+      blog.coverImage = uploadedImage.secure_url;
+      blog.coverImagePublicId = uploadedImage.public_id;
+    }
+
     const allowedFields = [
       "title",
       "slug",
       "excerpt",
       "content",
-      "coverImage",
       "category",
-      "tags",
       "status",
       "seoTitle",
       "seoDescription",
@@ -184,13 +212,16 @@ const updateBlog = async (req, res) => {
       }
     });
 
+    if (req.body.tags !== undefined) {
+      blog.tags = normalizeTags(req.body.tags);
+    }
+
     await blog.save();
 
     const updatedBlog = await Blog.findById(blog._id).populate(
       "author",
       "name email"
     );
-
 
     return res.status(200).json({
       success: true,
@@ -234,8 +265,11 @@ const deleteBlog = async (req, res) => {
       });
     }
 
-    await blog.deleteOne();
+    if (blog.coverImagePublicId) {
+      await deleteImage(blog.coverImagePublicId);
+    }
 
+    await blog.deleteOne();
 
     return res.status(200).json({
       success: true,

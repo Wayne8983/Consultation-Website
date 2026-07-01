@@ -38,7 +38,9 @@ const { createProject,
     completeProject, 
     deleteProject, 
     oneClientProject, 
-    cancelProject} = require("../../Controllers/ProjectsControllers/ProjectsControllers");
+    cancelProject,
+    updateMilestone,
+    confirmMilestonePayment} = require("../../Controllers/ProjectsControllers/ProjectsControllers");
 
 const router = express.Router();
 
@@ -58,6 +60,20 @@ router.patch('/Projects/update/:id',authenticate,Authorize("admin"),updateProjec
 router.patch('/Projects/:id/complete',authenticate,Authorize("admin"),completeProject);
 router.delete('/Projects/delete/:id',authenticate,Authorize("admin"),deleteProject);
 router.patch('/cancelProject/:id',authenticate,Authorize("admin"),cancelProject);
+
+router.patch(
+  "/Projects/:projectId/milestones/:milestoneId",
+  authenticate,
+  Authorize("admin"),
+  updateMilestone
+);
+
+router.patch(
+  "/Projects/:projectId/milestones/:milestoneId/confirm-payment",
+  authenticate,
+  Authorize("admin"),
+  confirmMilestonePayment
+);
 
 router.get('/Clients/:id/projects',authenticate,Authorize("admin"),oneClientProject);
 

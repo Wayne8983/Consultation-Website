@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "../Auth/ProtectedRoute";
+import BlogDetails from "../Pages/BlogDetails";
 
 import Home from "../Pages/Home";
 import About from "../Pages/About";
@@ -63,6 +64,15 @@ const AppRoutes = () => {
                                 <Blog />
                             </MainLayout> 
                         } />
+
+        <Route
+                path="/insights/:id"
+                element={
+                        <MainLayout>
+                            <BlogDetails />
+                        </MainLayout>
+                }
+        />
 
 
         <Route 

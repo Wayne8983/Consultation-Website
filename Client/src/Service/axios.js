@@ -1,4 +1,10 @@
 import axios from "axios";
+import {
+  clearAuthSession,
+  getAccessToken,
+  setAuthSession,
+} from "../Utils/authSession";
+
 const BackendURL = import.meta.env.VITE_BackendURL;
 
 const api = axios.create({
@@ -11,18 +17,42 @@ const refreshApi = axios.create({
   withCredentials: true,
 });
 
-const clearAuthAndRedirect = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userType");
-  localStorage.removeItem("user");
+let refreshPromise = null;
 
+const redirectToLogin = () => {
   if (window.location.pathname !== "/login") {
     window.location.href = "/login";
   }
 };
 
+export const refreshSession = async () => {
+  if (!refreshPromise) {
+    refreshPromise = refreshApi
+      .post("/users/refresh-token")
+      .then((response) => {
+        setAuthSession({
+          token: response.data.token,
+          userType: response.data.userType,
+          user: response.data.user,
+        });
+
+        return response.data;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+};
+
+export const clearAuthAndRedirect = () => {
+  clearAuthSession();
+  redirectToLogin();
+};
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = getAccessToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -40,35 +70,22 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const isRefreshRequest = originalRequest.url?.includes("/users/refresh-token");
+    const isRefreshRequest = originalRequest.url?.includes(
+      "/users/refresh-token"
+    );
 
     if (isRefreshRequest) {
-      clearAuthAndRedirect();
+      clearAuthSession();
       return Promise.reject(error);
     }
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      localStorage.getItem("token")
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const response = await refreshApi.post("/users/refresh-token");
-        const newToken = response.data.token;
+        const session = await refreshSession();
 
-        localStorage.setItem("token", newToken);
-
-        if (response.data.userType) {
-          localStorage.setItem("userType", response.data.userType);
-        }
-
-        if (response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-        }
-
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.Authorization = `Bearer ${session.token}`;
 
         return api(originalRequest);
       } catch (refreshError) {

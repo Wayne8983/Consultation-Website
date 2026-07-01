@@ -1,26 +1,34 @@
-import api from "../Service/axios";
+import api, { refreshSession } from "../Service/axios";
+import {
+  clearAuthSession,
+  getAccessToken,
+  getStoredUser,
+  getStoredUserType,
+} from "./authSession";
 
 export const getToken = () => {
-  return localStorage.getItem("token");
+  return getAccessToken();
 };
 
 export const getUserType = () => {
-  return localStorage.getItem("userType");
+  return getStoredUserType();
 };
 
 export const getUser = () => {
-  const user = localStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
+  return getStoredUser();
 };
 
 export const isAuthenticated = () => {
-  return !!localStorage.getItem("token");
+  return !!getAccessToken();
+};
+
+export const restoreSession = async () => {
+  const session = await refreshSession();
+  return session;
 };
 
 export const clearAuth = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userType");
-  localStorage.removeItem("user");
+  clearAuthSession();
 };
 
 export const logout = async () => {
@@ -29,6 +37,6 @@ export const logout = async () => {
   } catch (err) {
     console.log(err);
   } finally {
-    clearAuth();
+    clearAuthSession();
   }
 };

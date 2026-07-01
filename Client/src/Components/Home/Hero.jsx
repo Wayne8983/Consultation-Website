@@ -1,7 +1,6 @@
-// import React from "react";
-import Strategy from '../Public/strategy.jfif' 
+
 import { Link } from 'react-router-dom';
-// import {motion} from 'framer-motion'
+
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 import AOS from "aos";
@@ -81,7 +80,7 @@ const Hero = () => {
                   data-aos="fade-left"
                   data-aos-delay="100"
             >
-              <img src={Strategy}alt="" className='object-cover w-full h-full rounded-2xl' />
+              <img src="https://res.cloudinary.com/pvaabczg/image/upload/v1782894906/download_3_mzbkef.jpg"alt="" className='object-cover w-full h-full rounded-2xl' />
             </div>
           </div>
 

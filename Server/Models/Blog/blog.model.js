@@ -33,6 +33,10 @@ const blogSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    coverImagePublicId: {
+      type: String,
+      default: "",
+    },
 
     category: {
       type: String,

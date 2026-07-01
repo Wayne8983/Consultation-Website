@@ -18,6 +18,7 @@ const emptyForm = {
   excerpt: "",
   content: "",
   coverImage: "",
+  coverImageFile: null,
   category: "General",
   tags: "",
   status: "Draft",
@@ -146,6 +147,7 @@ const AdminBlogs = () => {
       excerpt: blog.excerpt || "",
       content: blog.content || "",
       coverImage: blog.coverImage || "",
+      coverImageFile: null,
       category: blog.category || "General",
       tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : "",
       status: blog.status || "Draft",
@@ -172,21 +174,38 @@ const AdminBlogs = () => {
       return;
     }
 
-    const payload = {
-      ...form,
-      tags: form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    };
+    const formData = new FormData();
+
+    formData.append("title", form.title);
+    formData.append("excerpt", form.excerpt);
+    formData.append("content", form.content);
+    formData.append("category", form.category);
+    formData.append("status", form.status);
+    formData.append("seoTitle", form.seoTitle);
+    formData.append("seoDescription", form.seoDescription);
+
+    const tags = form.tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+    tags.forEach((tag) => formData.append("tags", tag));
+
+    if (form.coverImageFile) {
+      formData.append("coverImage", form.coverImageFile);
+    }
 
     try {
       setActionLoading(true);
 
       if (selectedBlog) {
-        await api.patch(`/blog/blogs/${selectedBlog._id}`, payload);
+        await api.patch(`/blog/blogs/${selectedBlog._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } else {
-        await api.post("/blog/blogs", payload);
+        await api.post("/blog/blogs", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
       await fetchBlogs();
@@ -415,11 +434,7 @@ const AdminBlogs = () => {
             />
 
             <div className="grid md:grid-cols-2 gap-4">
-              <Input
-                label="Cover Image URL"
-                value={form.coverImage}
-                onChange={(value) => setForm({ ...form, coverImage: value })}
-              />
+              <ImageInput form={form} setForm={setForm} />
 
               <Input
                 label="Category"
@@ -512,6 +527,38 @@ const AdminBlogs = () => {
         </Modal>
       )}
     </div>
+  );
+};
+
+const ImageInput = ({ form, setForm }) => {
+  const previewUrl = form.coverImageFile
+    ? URL.createObjectURL(form.coverImageFile)
+    : form.coverImage;
+
+  return (
+    <label className="block">
+      <span className="text-sm text-gray-400">Cover Image</span>
+
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        onChange={(e) =>
+          setForm({
+            ...form,
+            coverImageFile: e.target.files?.[0] || null,
+          })
+        }
+        className="mt-2 w-full rounded-xl border border-red-900/20 bg-white/[0.04] px-4 py-3 text-white outline-none file:mr-4 file:rounded-lg file:border-0 file:bg-red-600 file:px-4 file:py-2 file:text-white hover:file:bg-red-700"
+      />
+
+      {previewUrl && (
+        <img
+          src={previewUrl}
+          alt="Blog cover preview"
+          className="mt-3 h-32 w-full rounded-xl object-cover border border-red-900/20"
+        />
+      )}
+    </label>
   );
 };
 

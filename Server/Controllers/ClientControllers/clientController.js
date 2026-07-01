@@ -84,7 +84,8 @@ const createClient = async (req, res) => {
             email,
             password: hashedPassword,
             phone,
-            company
+            company,
+            status:"Active"
         });
 
         return res.status(201).json({
@@ -192,7 +193,10 @@ const changePassword = async(req,res)=>{
 
 
         user.password=hash;
+        user.mustChangePassword=false;
         await user.save();
+
+        
 
         return res.status(200).json({
             success:true,

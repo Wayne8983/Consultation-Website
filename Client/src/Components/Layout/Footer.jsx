@@ -48,7 +48,7 @@ const Footer = () =>{
             href={'/contact'}
             className="inline-flex items-center gap-2 mt-8 text-fuchsia-400 text-xl hover:text-fuchsia-300 transition"
           >
-            hello@company.com
+            hello@strategycenter.co.ke
             <ArrowUpRight size={22} />
           </a>
 

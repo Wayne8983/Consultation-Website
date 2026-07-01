@@ -1,61 +1,96 @@
 const mongoose = require("mongoose");
 
-const projectSchema = new mongoose.Schema({
-    client:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Client"
+const milestoneSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    description: { type: String, trim: true, default: "" },
+    amount: { type: Number, required: true, min: 0 },
+    dueDate: { type: Date, required: true },
+    status: {
+      type: String,
+      enum: ["Pending", "In Progress", "Completed"],
+      default: "Pending",
     },
-    title:{
-        type:String,
-        required:true,
-        trim:true
+    paymentStatus: {
+      type: String,
+      enum: ["Not Paid", "Submitted", "Received"],
+      default: "Not Paid",
     },
-    description:{
-        type:String,
-        required:true
-    },
-    status:{
-        type:String,
-        enum:["Active","Completed","Paused","Cancelled"]
-    },
-    startDate:{
-        type:Date,
-        required:true
+    paymentReference: { type: String, trim: true, default: "" },
+    paymentNote: { type: String, trim: true, default: "" },
+    paidAt: { type: Date, default: null },
+    paymentConfirmedAt: { type: Date, default: null },
+  },
+  { timestamps: true }
+);
+
+const projectSchema = new mongoose.Schema(
+  {
+    client: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Client",
     },
 
-    deadline:{
-        type:Date
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    completedDate:{
-        type:Date
+    description: {
+      type: String,
+      required: true,
     },
 
-    budget:{
-        type:Number
-    },
-    progress:{
-        type:Number,
-        default:0,
-        min:0,
-        max:100
+    status: {
+      type: String,
+      enum: ["Active", "Completed", "Paused", "Cancelled"],
+      default: "Active",
     },
 
-    assignedTo:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Admin"
+    startDate: {
+      type: Date,
+      required: true,
     },
 
-    notes:{
-        type:String
-    }
-},
-{
-    timestamps:true
-}
+    deadline: {
+      type: Date,
+    },
+
+    completedDate: {
+      type: Date,
+    },
+
+    budget: {
+      type: Number,
+    },
+
+    progress: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+    },
+
+    notes: {
+      type: String,
+    },
+
+    milestones: {
+      type: [milestoneSchema],
+      default: [],
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 const Project = mongoose.model("Project", projectSchema);
 
 module.exports = Project;
-
