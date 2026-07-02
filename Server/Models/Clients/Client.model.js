@@ -24,7 +24,6 @@ const clientSchema = new mongoose.Schema({
 
     phone:{
         type:String,
-        unique:true,
         required:[true,'Phone number is required'],
         trim:true,
         match:[/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number (e.g., +254... )']

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthPopup from "../../Components/Feedback/AuthPopup";
 import {
   ArrowRight,
@@ -10,11 +10,10 @@ import {
   Mail,
 } from "lucide-react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import LoginPic from "../../assets/LoginPic.png";
-import CompanyLogo from '../../assets/companyLogo.png'
-import { getToken, getUserType, logout } from "../../Utils/auth";
-import { setAuthSession } from "../../Utils/authSession"
+import CompanyLogo from "../../assets/companyLogo.png";
+import { getToken, getUserType, restoreSession } from "../../Utils/auth";
+import { setAuthSession } from "../../Utils/authSession";
 
 const BackendURL = import.meta.env.VITE_BackendURL;
 
@@ -28,39 +27,14 @@ const getDashboardPath = (role) => {
   return null;
 };
 
-const decodeJwtPayload = (token) => {
-  const [, payload] = token.split(".");
-  if (!payload) return null;
-
-  const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/");
-  const paddedPayload = normalizedPayload.padEnd(
-    normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
-    "="
-  );
-
-  return JSON.parse(atob(paddedPayload));
-};
-
-const tokenHasExpired = (token) => {
-  try {
-    const decoded = decodeJwtPayload(token);
-    if (!decoded) return true;
-
-    return decoded.exp ? decoded.exp * 1000 <= Date.now() : false;
-  } catch {
-    return true;
-  }
-};
-
 const Login = () => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [focusField, setFocusField] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [error, setError] = useState("");
-
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,7 +46,10 @@ const Login = () => {
   const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
 
   const canSubmit =
-    EMAIL_PATTERN.test(normalizedEmail) && password.length >= 8 && !loading;
+    EMAIL_PATTERN.test(normalizedEmail) &&
+    password.length >= 8 &&
+    !loading &&
+    !checkingSession;
 
   const isFloating = (field, value) => {
     return focusField === field || value.length > 0;
@@ -89,18 +66,38 @@ const Login = () => {
   }, [popupMessage]);
 
   useEffect(() => {
-    const token = getToken();
-    const userType = getUserType();
-    const dashboardPath = getDashboardPath(userType);
+    let cancelled = false;
 
-    if (!token) return;
+    const checkExistingSession = async () => {
+      try {
+        let token = getToken();
+        let userType = getUserType();
 
-    if (tokenHasExpired(token) || !dashboardPath) {
-      logout();
-      return;
-    }
+        if (!token) {
+          const session = await restoreSession();
+          token = session?.token;
+          userType = session?.userType;
+        }
 
-    navigate(dashboardPath, { replace: true });
+        const dashboardPath = getDashboardPath(userType);
+
+        if (!cancelled && token && dashboardPath) {
+          navigate(dashboardPath, { replace: true });
+        }
+      } catch {
+        // No valid refresh cookie. Stay on login page.
+      } finally {
+        if (!cancelled) {
+          setCheckingSession(false);
+        }
+      }
+    };
+
+    checkExistingSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   const handleEmailChange = (e) => {
@@ -140,8 +137,8 @@ const Login = () => {
           headers: {
             "Content-Type": "application/json",
           },
-            withCredentials: true,
-            timeout: 15000,
+          withCredentials: true,
+          timeout: 15000,
         }
       );
 
@@ -162,36 +159,34 @@ const Login = () => {
 
       setTimeout(() => {
         navigate(dashboardPath, { replace: true });
-      }, 900);
-    }catch (err) {
-  if (err.response?.status === 403) {
-    setError(
-      err.response?.data?.message ||
-        "Your account has been suspended. Please contact the organization for more information."
-    );
-    return;
-  }
+      }, 700);
+    } catch (err) {
+      if (err.response?.status === 403) {
+        setError(
+          err.response?.data?.message ||
+            "Your account has been suspended. Please contact the organization for more information."
+        );
+        return;
+      }
 
-  if (err.response?.status === 401) {
-    setError("Invalid credentials!!!");
-    return;
-  }
+      if (err.response?.status === 401) {
+        setError("Invalid credentials.");
+        return;
+      }
 
-  setError(
-    err.response?.data?.message ||
-      "Something went wrong while signing in. Please try again."
-  );
-} finally {
-  setLoading(false);
-}
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong while signing in. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#050507] text-white">
-      <AuthPopup
-        message={popupMessage}
-        onClose={() => setPopupMessage("")}
-      />
+      <AuthPopup message={popupMessage} onClose={() => setPopupMessage("")} />
+
       <section className="grid min-h-screen lg:grid-cols-[1.08fr_0.92fr]">
         <div className="relative hidden overflow-hidden lg:block">
           <img
@@ -205,7 +200,11 @@ const Login = () => {
           <div className="relative z-10 flex h-full flex-col justify-between p-12 xl:p-16">
             <a href="/" className="inline-flex w-fit items-center gap-3">
               <span className="flex h-25 w-25 items-center justify-center rounded-xl border border-fuchsia-400/25 bg-white/10 backdrop-blur-md">
-                <img src={CompanyLogo} alt=""className="h-23 w-23 text-fuchsia-300" />
+                <img
+                  src={CompanyLogo}
+                  alt=""
+                  className="h-23 w-23 text-fuchsia-300"
+                />
               </span>
 
               <span className="text-lg font-semibold tracking-wide">
@@ -261,7 +260,9 @@ const Login = () => {
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-slate-400">
-                  Enter your credentials to continue.
+                  {checkingSession
+                    ? "Checking your session..."
+                    : "Enter your credentials to continue."}
                 </p>
               </div>
 

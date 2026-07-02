@@ -224,11 +224,12 @@ const ContactSection = () => {
                   Location
                 </h3>
 
-                <p className="mt-2 text-slate-400"
+                <p className="mt-2 text-slate-400 flex flex-col"
                     data-aos="fade-up"
                     data-aos-delay="100"
                 >
-                  Nairobi, Kenya
+                  Nairobi, Kenya 
+                  <p> KP Offices Suite 26,Milimani Road</p>
                 </p>
               </div>
 

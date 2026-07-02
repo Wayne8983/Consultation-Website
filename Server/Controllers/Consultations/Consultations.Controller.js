@@ -70,13 +70,16 @@ const bookConsultation = async (req, res) => {
     }
 
     const existingConsultation = await Consultation.findOne({
-      email: { $eq: email },
+      $or: [{ email: { $eq: email } }, { phone: { $eq: phone } }],
     });
 
     if (existingConsultation) {
+      const duplicateField =
+        existingConsultation.email === email ? "email" : "phone number";
+
       return res.status(409).json({
         success: false,
-        message: "User with email exists",
+        message: `A consultation request with this ${duplicateField} already exists`,
       });
     }
 
@@ -92,9 +95,18 @@ const bookConsultation = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Consultation request Sent!",
+      message: "Consultation request sent successfully",
     });
   } catch (err) {
+    if (err.code === 11000) {
+      const duplicateField = Object.keys(err.keyPattern || {})[0] || "field";
+
+      return res.status(409).json({
+        success: false,
+        message: `A consultation request with this ${duplicateField} already exists`,
+      });
+    }
+
     if (err.name === "ValidationError") {
       const formattedErrors = {};
 
@@ -102,10 +114,13 @@ const bookConsultation = async (req, res) => {
         formattedErrors[key] = err.errors[key].message;
       });
 
-      return res.status(400).json({ errors: formattedErrors });
+      return res.status(400).json({
+        success: false,
+        errors: formattedErrors,
+      });
     }
 
-    console.log("Consultation Booking error", err);
+    console.log("Consultation booking error", err);
 
     return res.status(500).json({
       success: false,

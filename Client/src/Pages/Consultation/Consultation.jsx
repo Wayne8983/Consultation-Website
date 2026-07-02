@@ -73,6 +73,9 @@ const Consultation = () => {
       setMessageType("error");
     } finally {
       setLoading(false);
+      setTimeout(()=>{
+        setMessage("");
+      },[4000])
     }
   };
 
