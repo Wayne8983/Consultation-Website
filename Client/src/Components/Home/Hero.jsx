@@ -1,93 +1,116 @@
-
-import { Link } from 'react-router-dom';
-
-import "aos/dist/aos.css";
+import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import AOS from "aos";
+import "aos/dist/aos.css";
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  Sparkles,
+  Target,
+} from "lucide-react";
+
+const HERO_IMAGE = "https://res.cloudinary.com/pvaabczg/image/upload/v1782910965/hero_gewwvx.png";
 
 const Hero = () => {
-         useEffect(() => {
-            AOS.init({
-              duration: 2000,
-              once: false,
-              offset: 120,
-            });
-      
-            AOS.refresh();
-          }, []);
+  useEffect(() => {
+    AOS.init({
+      duration: 900,
+      easing: "ease-out-cubic",
+      once: false,
+      offset: 90,
+      delay: 60,
+    });
+
+    AOS.refresh();
+  }, []);
+
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden">
+    <section className="relative min-h-[92vh] w-full overflow-hidden bg-[#07080c] text-white">
+      <img
+        src={HERO_IMAGE}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
 
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#07080c_0%,rgba(7,8,12,.96)_38%,rgba(7,8,12,.72)_68%,rgba(7,8,12,.38)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_32%,rgba(220,38,38,.24),transparent_34%)]" />
 
-      {/* 🖤 Overlay for readability */}
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
-
-      {/* 📦 Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 flex items-center min-h-[90vh]">
-
-        <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
-
-          {/* LEFT SIDE */}
-          <div>
-            
-              <p className="text-sm tracking-widest text-slate-600 font-semibold"
-                  data-aos="fade-right"
-                  data-aos-delay="60"
-              >
-                STRATEGY • VISION • INNOVATION
-              </p>
-
-            <h1 
-              className="mt-4 text-4xl md:text-6xl font-bold text-slate-900 leading-tight" 
-              data-aos="fade-right"
-              data-aos-delay="200"
-            >
-              Transform Strategy Into Measurable Growth
-                            
-            </h1>
-  
-    
-              <p className="mt-6 text-lg text-slate-600 max-w-xl"
-                  data-aos="fade-right"
-                  data-aos-delay="100"
-              >
-                We help organizations execute strategy effectively through leadership development,
-                performance systems, and operational excellence.                
-              </p>
-
-      
-      
-
-            {/* Buttons */}
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link to='/consultation' className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
-              >
-                Book Consultation
-              </Link>
-
-              <Link to='/services' className="px-6 py-3 border border-slate-300 rounded-lg hover:border-slate-900 transition"
-                  data-aos="fade-right"
-                  data-aos-delay="100"
-              >
-                Explore Services
-              </Link>
-            </div>
+      <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl items-center px-6 py-28">
+        <div className="max-w-4xl">
+          <div
+            data-aos="fade-right"
+            data-aos-delay="80"
+            className="inline-flex items-center gap-2 rounded-full border border-red-400/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-red-200 backdrop-blur-md"
+          >
+            <Sparkles size={15} />
+            Strategy • Vision • Innovation
           </div>
 
-          {/* RIGHT SIDE (Optional visual space) */}
-          <div className="hidden lg:block">
-            <div className="h-[400px] rounded-2xl border border-slate-200 bg-white/40 backdrop-blur-md shadow-xl shadow-gray-400"
-                  data-aos="fade-left"
-                  data-aos-delay="100"
+          <h1
+            data-aos="fade-right"
+            data-aos-delay="180"
+            className="mt-7 max-w-4xl text-5xl font-black leading-[1.02] tracking-tight text-white md:text-7xl"
+          >
+            Transform Strategy Into{" "}
+            <span className="text-red-400">Measurable Growth</span>
+          </h1>
+
+          <p
+            data-aos="fade-right"
+            data-aos-delay="300"
+            className="mt-7 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl"
+          >
+            We help organizations execute strategy effectively through
+            leadership development, performance systems, and operational
+            excellence.
+          </p>
+
+          <div
+            data-aos="fade-up"
+            data-aos-delay="420"
+            className="mt-9 flex flex-wrap gap-4"
+          >
+            <Link
+              to="/consultation"
+              className="group inline-flex items-center gap-3 rounded-xl bg-red-600 px-6 py-4 font-semibold text-white shadow-[0_18px_45px_rgba(220,38,38,.28)] transition hover:bg-red-500"
             >
-              <img src="https://res.cloudinary.com/pvaabczg/image/upload/v1782894906/download_3_mzbkef.jpg"alt="" className='object-cover w-full h-full rounded-2xl' />
-            </div>
+              Book Consultation
+              <ArrowRight
+                size={18}
+                className="transition group-hover:translate-x-1"
+              />
+            </Link>
+
+            <Link
+              to="/services"
+              className="inline-flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-6 py-4 font-semibold text-white backdrop-blur-md transition hover:border-red-400/50 hover:bg-white/15"
+            >
+              Explore Services
+            </Link>
           </div>
 
+          <div
+            data-aos="fade-up"
+            data-aos-delay="540"
+            className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3"
+          >
+            <HeroPoint icon={<Target size={18} />} label="Clear Strategy" />
+            <HeroPoint icon={<BarChart3 size={18} />} label="Measured Growth" />
+            <HeroPoint icon={<CheckCircle2 size={18} />} label="Better Execution" />
+          </div>
         </div>
       </div>
-
     </section>
+  );
+};
+
+const HeroPoint = ({ icon, label }) => {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 text-sm font-medium text-slate-200 backdrop-blur-md">
+      <span className="text-red-300">{icon}</span>
+      {label}
+    </div>
   );
 };
 
